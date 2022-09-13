@@ -11,15 +11,15 @@ class InventoryService:
         self._inventory = None
         self._inventory_repository = inventory_repository
 
-    def add_inventory(self, name, email, phonenumber, other):
+    def add_inventory(self, name, email, phonenumber, coordinates, time, methods, attachments, other):
         """ Adds a new inventory."""
 
-        if name == "":
-            return False, "Täytä kaikki tiedot"
+        if coordinates == "" or time == "" or methods == "":
+            return False, "Tayta kaikki tiedot"
 
-        self._inventory = Inventory(name, email, phonenumber, other)
+        self._inventory = Inventory(name, email, phonenumber, coordinates, time, methods, attachments, other)
 
-        if self._inventory_repository.add_new_inventory(self._inventory):
+        if self._inventory_repository.add_inventory(self._inventory):
             return True, "Lahetys onnistui."
 
         return False, "Lahetys ei onnistunut."

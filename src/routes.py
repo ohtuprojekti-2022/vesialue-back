@@ -12,9 +12,13 @@ def add_inventory():
     name = request.form["name"]
     email = request.form["email"]
     phonenumber = request.form["phonenumber"]
+    coordinates = request.form["coordinates"]
+    time = request.form["time"]
+    methods = request.form["methods"]
+    attachments = request.form["attachments"]
     other = request.form["other"]
 
-    succes, error = inventory_service.add_inventory(name, email, phonenumber, other)
+    succes, error = inventory_service.add_inventory(name, email, phonenumber, coordinates, time, methods, attachments, other)
     if succes:
         return redirect("/")
 
