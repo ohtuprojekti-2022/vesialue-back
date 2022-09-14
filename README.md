@@ -10,7 +10,7 @@ pip install -r ./requirements.txt
 
 In virtual environment run:
 ```bash
-flask run
+flask --app src/app run
 ```
 
 ## Docker
