@@ -3,6 +3,7 @@
 ignore=tests,index.py
 ignored-classes=SQLObject,Registrant,scoped_session
 load-plugins=pylint.extensions.mccabe
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
 
 [MESSAGE CONTROL]
 
