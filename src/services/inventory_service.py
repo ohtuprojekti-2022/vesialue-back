@@ -1,5 +1,5 @@
-from entities.inventory import Inventory
-from repositories.inventory_repository import inventory_repository as default_inventory_repository
+from src.entities.inventory import Inventory
+from src.repositories.inventory_repository import inventory_repository as default_inventory_repository
 
 class InventoryService:
     """ Class responsible for inventory logic."""

@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect
 from app import app
-from services.inventory_service import inventory_service
+from src.services.inventory_service import inventory_service
 
 
 @app.route("/")
