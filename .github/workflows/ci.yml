@@ -17,6 +17,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r ./requirements.txt
       - name: Run tests
+        with:
+          mongo_uri: ${{ secrets.MONGO_URI }}
         run: coverage run -m pytest -m "not api"
       - name: Lint
         run: pylint src --fail-under=8
