@@ -21,7 +21,8 @@ class AddInventory(Resource):
         email = data['email']
         phonenumber = data['phonenumber']
         other = data['other']
-        
-        Inventory.create(coordinates=coordinates, time=time, methods=methods, attachments=attachments, name=name, email=email, phonenumber=phonenumber, other=other)
+
+        Inventory.create(coordinates=coordinates, time=time, methods=methods,
+        		  attachments=attachments, name=name, email=email, phonenumber=phonenumber, other=other)
         return {'message': 'success'}, 200
 

@@ -2,7 +2,7 @@ from flask_restx import Api
 
 from .inventory_route import api as add_inventory_api
 
-api=Api(
+api = Api(
     title='Api for Vesialueen inventointi-ilmoitus'
 )
 
