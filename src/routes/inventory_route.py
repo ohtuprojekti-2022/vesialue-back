@@ -1,7 +1,7 @@
 from argparse import Namespace
 from flask import request
 from flask_restx import Namespace, Resource
-from src.models.inventory import Inventory
+from models.inventory import Inventory
 
 api = Namespace('add_inventory')
 

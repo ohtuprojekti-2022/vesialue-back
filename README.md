@@ -16,7 +16,7 @@ pip install -r ./requirements.txt
 
 In virtual environment run:
 ```bash
-flask run
+flask --app src/app run
 ```
 ## Heroku
 - [Staging](https://vesialue-back-staging.herokuapp.com)

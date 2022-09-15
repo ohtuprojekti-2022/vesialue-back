@@ -1,5 +1,5 @@
 from pymodm.connection import connect
-from src.utils.config import MONGO_URI
+from utils.config import MONGO_URI
 
 
 def connect_to_db():
