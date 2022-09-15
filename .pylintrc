@@ -101,4 +101,5 @@ disable=print-statement,
 	max-statements: 20
 	max-complexity: 3
 	max-attributes: 8
+	max-args: 8
 
