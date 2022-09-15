@@ -7,23 +7,30 @@ Vesialueen inventointi-ilmoitus backend
 - Production branch: main
 - Staging branch: staging
 
+## Heroku
+- [Staging](https://vesialue-back-staging.herokuapp.com)
+- [Production](https://vesialue-back.herokuapp.com)
+
+There are GitHub Actions building and pushing the Docker containers to Heroku on each commit to main and staging branches
+
 ## Installation
+Create a virtual environment and install dependencies:
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r ./requirements.txt
 ```
 
-In virtual environment run:
+Provide environment variables by creating an `.env` file at the root of the project:
 ```bash
-flask --app src/app run
+MONGO_URI=<MongoDB URI>
+SECRET_KEY=<encryption key>
 ```
-## Heroku
-- [Staging](https://vesialue-back-staging.herokuapp.com)
-- [Production](https://vesialue-back.herokuapp.com)
 
-There are GitHub Actions to build the containers and
-push them to Heroku on each commit to main and staging branches
+In the virtual environment, start the server from the root of the project by running:
+```bash
+FLASK_APP=src/app.py flask run
+```
 
 ## Docker
 ### Building image
