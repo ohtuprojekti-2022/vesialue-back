@@ -1,16 +1,11 @@
 from flask import Flask
-from models.user import User
 from utils.mongo import connect_to_db
 from routes import api
+from utils.config import SECRET_KEY
 
 connect_to_db()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'aaaaaaaaa'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 api.init_app(app)
-
-#@app.route("/")
-#def index():
-#    User.create("abaa", "aaaaaaaaaa", "aaa", "aaa", "aaa")
-#    return "Hello world!"
