@@ -1,9 +1,6 @@
-from argparse import Namespace
-
-
 from flask import request
 from flask_restx import Namespace, Resource
-from models.user import User
+from services.user_service import create_user
 
 api = Namespace('register')
 
@@ -13,13 +10,5 @@ class Register(Resource):
         content_type = request.headers.get('Content-Type')
         if (content_type != 'application/json'):
             return {'error': 'bad request'}, 400
-        data = request.get_json()
-
-        username = data['username']
-        password = data['password']
-        email = data['email']
-        phone = data['phone']
-        name = data['name']
-        
-        User.create(username=username, password=password, name=name, email=email, phone=phone)
-        return {'message': 'success'}, 200
+        user = create_user(request.get_json())
+        return user, 200

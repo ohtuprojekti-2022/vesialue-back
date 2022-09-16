@@ -89,7 +89,8 @@ disable=print-statement,
         missing-module-docstring,
         missing-function-docstring,
         missing-class-docstring,
-        no-self-use
+        no-self-use,
+        too-few-public-methods
 
 [FORMAT]
 	max-line-length: 110
@@ -100,6 +101,7 @@ disable=print-statement,
 [DESIGN]
 	max-statements: 20
 	max-complexity: 3
+	max-branches: 10
 	max-attributes: 8
 	max-args: 8
 
