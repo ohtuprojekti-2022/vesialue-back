@@ -43,7 +43,7 @@ def login_user(data):
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
         raise BadRequest(description='incorrect username or password')
 
-    if not check_password_hash(user['password'], password):
+    if not check_password_hash(user.password, password):
         raise BadRequest(description='incorrect username or password')
 
     return user.to_json()
