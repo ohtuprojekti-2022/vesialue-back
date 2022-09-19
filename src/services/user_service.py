@@ -1,5 +1,6 @@
 import re
 from werkzeug.exceptions import BadRequest
+from werkzeug.security import check_password_hash
 from pymodm import errors
 from models.user import User
 
@@ -35,15 +36,14 @@ def create_user(data):
 def login_user(data):
     username = data['username']
     password = data['password']
-    
-    if username is None or password is None:
-        # error
-    
     try:
         user = User.objects.raw({
             'username': {'$eq': username}
         }).first()
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
-        raise BadRequest(description='user not found')
-    
-    return user.to_json()    
+        raise BadRequest(description='incorrect username or password')
+
+    if not check_password_hash(user['password'], password):
+        raise BadRequest(description='incorrect username or password')
+
+    return user.to_json()
