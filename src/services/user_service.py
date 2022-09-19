@@ -31,3 +31,19 @@ def create_user(data):
         user = User.create(username=username, password=password,
                        name=name, email=email, phone=phone)
     return user.to_json()
+
+def login_user(data):
+    username = data['username']
+    password = data['password']
+    
+    if username is None or password is None:
+        # error
+    
+    try:
+        user = User.objects.raw({
+            'username': {'$eq': username}
+        }).first()
+    except (errors.DoesNotExist, errors.ModelDoesNotExist):
+        raise BadRequest(description='user not found')
+    
+    return user.to_json()    
