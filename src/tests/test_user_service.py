@@ -49,4 +49,17 @@ class TestUserService(unittest.TestCase):
                         "email":"testiposti@gmail.com",
                         "phone":"32198700"})
 
-    #def test_create_user_success(self):
+    def test_create_user_success(self):
+            user = create_user({"username":"testaaja",
+                "password":"salainensana",
+                "name":"Teppo Testaaja",
+                "email":"testiposti@gmail.com",
+                "phone":"32198700"})
+            
+            self.assertEqual(user, {
+                'id': str(user["id"]) or None,
+                'name': "Teppo Testaaja",
+                'email': "testiposti@gmail.com",
+                'phone': "32198700",
+                'username': "testaaja"
+                })
