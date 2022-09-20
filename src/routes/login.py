@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import login_user
+from services.user_service import login_user, generate_token
 from utils.config import SECRET_KEY
 import jwt
 
@@ -13,5 +13,5 @@ class Login(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         user = login_user(request.get_json())
-        token = jwt.encode({'user_id': user['id']}, SECRET_KEY)
-        return {'login_token': token}, 200
+        token = generate_token(user)
+        return {'auth': token}, 200
