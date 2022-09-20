@@ -1,13 +1,15 @@
 import unittest
 import pytest
 from utils.mongo import connect_to_db
-from services.user_service import create_user
+from services.user_service import create_user, delete_all_users
 from werkzeug.exceptions import BadRequest
 
 BASE_URL = 'http://localhost:5000/api'
 connect_to_db()
 
 class TestUserService(unittest.TestCase):
+    def setUp(self):
+        delete_all_users()
     
     def test_create_user_password_too_short(self):
         with pytest.raises(BadRequest):
@@ -33,6 +35,18 @@ class TestUserService(unittest.TestCase):
                         "email":"testiposti@gmail.com",
                         "phone":"32198700"})
 
-    #def test_create_user_username_taken(self):
+    def test_create_user_username_taken(self):
+        create_user({"username":"taken_username",
+                    "password":"salainensana",
+                    "name":"Teppo Testaaja",
+                    "email":"testiposti@gmail.com",
+                    "phone":"32198700"})
         
+        with pytest.raises(BadRequest):
+            create_user({"username":"taken_username",
+                        "password":"salainensana",
+                        "name":"Teppo Testaaja",
+                        "email":"testiposti@gmail.com",
+                        "phone":"32198700"})
+
     #def test_create_user_success(self):

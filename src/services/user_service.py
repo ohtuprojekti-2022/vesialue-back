@@ -36,3 +36,17 @@ def create_user(data):
         user = User.create(username=username, password=password,
                        name=name, email=email, phone=phone)
     return user.to_json()
+
+def get_all_users():
+    try:
+        users = User.objects.all()
+        print(users)
+        return users
+    except User.DoesNotExist:
+        return None
+
+def delete_all_users():
+    users = get_all_users()
+    if users:
+        for user in users:
+            user.delete()
