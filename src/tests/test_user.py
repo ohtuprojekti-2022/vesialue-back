@@ -20,3 +20,20 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.name, "Teppo Testaaja")
         self.assertEqual(user.email, "testiposti@gmail.com")
         self.assertEqual(user.phone, "1928374657")
+
+    def test_to_json(self):
+        user = User.create(username="testihenkilö",
+                           password="salainensana",
+                           name="Teppo Testaaja",
+                           email="testiposti@gmail.com",
+                           phone="1928374657")
+       
+        json = user.to_json()
+        
+        self.assertEqual(json, {
+            'id': str(user._id) or None,
+            'name': "Teppo Testaaja",
+            'email': "testiposti@gmail.com",
+            'phone': "1928374657",
+            'username': "testihenkilö"
+        })
