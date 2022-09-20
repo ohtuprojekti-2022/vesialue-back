@@ -36,6 +36,12 @@ def create_user(data):
 def login_user(data):
     username = data['username']
     password = data['password']
+
+    # Username and password length validation
+    if len(username) > 32 or len(username) < 3 or len(password) < 10 or len(password) > 128:
+        raise BadRequest(description='incorrect username or password')
+
+    # Check if user exists in the database
     try:
         user = User.objects.raw({
             'username': {'$eq': username}
@@ -43,6 +49,7 @@ def login_user(data):
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
         raise BadRequest(description='incorrect username or password')
 
+    # Validate user password hash
     if not check_password_hash(user.password, password):
         raise BadRequest(description='incorrect username or password')
 
