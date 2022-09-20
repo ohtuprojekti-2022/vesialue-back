@@ -9,4 +9,4 @@ COPY . .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-CMD gunicorn --conf gunicorn_conf.py --bind 0.0.0.0:$PORT src/app:app
+CMD gunicorn --conf gunicorn_conf.py --bind 0.0.0.0:$PORT --pythonpath src app:app
