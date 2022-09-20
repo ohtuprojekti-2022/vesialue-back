@@ -5,9 +5,9 @@ from werkzeug.security import generate_password_hash
 class User(MongoModel):
     username = fields.CharField(required=True, min_length=3)
     password = fields.CharField(required=True, min_length=10)
-    name = fields.CharField()
+    name = fields.CharField(blank=True)
     email = fields.CharField()
-    phone = fields.CharField()
+    phone = fields.CharField(blank=True)
 
     class Meta:
         '''Defines MongoDB options for this model'''
