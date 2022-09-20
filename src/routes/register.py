@@ -1,8 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import create_user
-from utils.config import SECRET_KEY
-import jwt
+from services.user_service import create_user, generate_token
 
 api = Namespace('register')
 
@@ -13,6 +11,5 @@ class Register(Resource):
         if (content_type != 'application/json'):
             return {'error': 'bad request'}, 400
         user = create_user(request.get_json())
-
-        token = jwt.encode({'user_id': user['id']}, SECRET_KEY)
-        return {'login_token': token}, 200
+        token = generate_token(user)
+        return {'auth': token}, 200

@@ -1,9 +1,14 @@
 import re
+import jwt
 from werkzeug.exceptions import BadRequest
 from pymodm import errors
 from models.user import User
+from utils.config import SECRET_KEY
 
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+
+def generate_token(user):
+    return jwt.encode({'user_id': user['id']}, SECRET_KEY)
 
 
 def create_user(data):
