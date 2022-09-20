@@ -8,6 +8,7 @@ from utils.config import SECRET_KEY
 
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
 
+
 def generate_token(user):
     return jwt.encode({'user_id': user['id']}, SECRET_KEY)
 
@@ -35,13 +36,11 @@ def create_user(data):
         raise BadRequest(description='username taken')
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
         user = User.create(username=username, password=password,
-                       name=name, email=email, phone=phone)
+                           name=name, email=email, phone=phone)
     return user.to_json()
 
-def login_user(data):
-    username = data['username']
-    password = data['password']
 
+def login_user(username, password):
     # Username and password length validation
     if len(username) > 32 or len(username) < 3 or len(password) < 10 or len(password) > 128:
         raise BadRequest(description='incorrect username or password')
@@ -57,5 +56,5 @@ def login_user(data):
     # Validate user password hash
     if not check_password_hash(user.password, password):
         raise BadRequest(description='incorrect username or password')
-
-    return user.to_json()
+    user = user.to_json()
+    return {'auth': generate_token(user), 'user': user}
