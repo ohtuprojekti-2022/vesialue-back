@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import create_user, generate_token
+from services.user_service import create_user, login_user
 
 api = Namespace('register')
 
@@ -10,6 +10,6 @@ class Register(Resource):
         content_type = request.headers.get('Content-Type')
         if (content_type != 'application/json'):
             return {'error': 'bad request'}, 400
-        user = create_user(request.get_json())
-        token = generate_token(user)
-        return {'auth': token}, 200
+        data = request.get_json()
+        user = create_user(data)
+        return login_user(user['username'], data['password']), 200
