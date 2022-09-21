@@ -1,4 +1,5 @@
 import unittest
+from tests.test_tools import delete_all_users
 from utils.mongo import connect_to_db
 from models.user import User
 from werkzeug.security import check_password_hash
@@ -8,6 +9,7 @@ connect_to_db()
 
 class TestUser(unittest.TestCase):
     def setUp(self):
+        delete_all_users()
         self.user = User.create(username="testihenkilö",
                     password="salainensana",
                     name="Teppo Testaaja",

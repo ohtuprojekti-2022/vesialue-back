@@ -2,16 +2,17 @@ import unittest
 import pytest
 import jwt
 from utils.mongo import connect_to_db
-from services.user_service import create_user, delete_all_users, generate_token, get_all_users
+from services.user_service import create_user, generate_token
 from werkzeug.exceptions import BadRequest
 from utils.config import SECRET_KEY
+import tests.test_tools as test_tools
 
 BASE_URL = 'http://localhost:5000/api'
 connect_to_db()
 
 class TestUserService(unittest.TestCase):
     def setUp(self):
-        delete_all_users()
+        test_tools.delete_all_users()
     
     def test_create_user_password_too_short(self):
         with pytest.raises(BadRequest):
@@ -66,7 +67,7 @@ class TestUserService(unittest.TestCase):
             'username': "testaaja"
             })
 
-    def test_get_all_users_returns_all_users(self):
+    def test_create_multiple_users_with_valid_credentials(self):
         create_user({"username":"testaaja",
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
@@ -77,7 +78,7 @@ class TestUserService(unittest.TestCase):
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
                 "phone":"32198700"})
-        users = get_all_users()
+        users = test_tools.get_all_users()
         self.assertEqual(len(list(users)), 2)
 
     def test_generate_token_generates_token(self):

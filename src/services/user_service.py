@@ -58,19 +58,3 @@ def login_user(username, password):
         raise BadRequest(description='incorrect username or password')
     user = user.to_json()
     return {'auth': generate_token(user), 'user': user}
-
-
-def get_all_users():
-    try:
-        users = User.objects.all()
-        print(users)
-        return users
-    except User.DoesNotExist:
-        return None
-
-
-def delete_all_users():
-    users = get_all_users()
-    if users:
-        for user in users:
-            user.delete()
