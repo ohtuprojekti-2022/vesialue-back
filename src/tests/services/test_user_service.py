@@ -2,7 +2,7 @@ import unittest
 import pytest
 import jwt
 from utils.mongo import connect_to_db
-from services.user_service import create_user, generate_token
+from services.user_service import create_user, generate_token, login_user
 from werkzeug.exceptions import BadRequest
 from utils.config import SECRET_KEY
 import tests.test_tools as test_tools
@@ -89,3 +89,42 @@ class TestUserService(unittest.TestCase):
                 "phone":"32198700"})
         token = generate_token(user)
         self.assertEqual(jwt.decode(token, SECRET_KEY, algorithms=["HS256"]), {'user_id': user['id']})
+
+    def test_login_invalid_credential_length(self):
+        with pytest.raises(BadRequest):
+            login_user("aa", "salainensana")
+        
+        with pytest.raises(BadRequest):
+            login_user("testaaja", "aaaa")
+
+        with pytest.raises(BadRequest):
+            login_user("pitkäkäyttäjänimiehkäjopavähänliianpitkä", "salainensana")
+
+        with pytest.raises(BadRequest):
+            login_user("testaaja", "vmqdhbwjseawfyrpuzbdhlwefqmnijdyrqookiedlmmsfyamnlsdueyqpivjkyzlbeuekpbntoortiygyzjahmughhnlsdrnmmwbhruhcvchquatsdfratsqhftmyzakjm")
+
+    def test_login_user_does_not_exist(self):
+        with pytest.raises(BadRequest):
+            login_user("olematon", "salainensana")
+
+    def test_login_incorrect_password(self):
+        create_user({"username":"testaaja",
+            "password":"salainensana",
+            "name":"Teppo Testaaja",
+            "email":"testiposti@gmail.com",
+            "phone":"32198700"})
+        
+        with pytest.raises(BadRequest):
+            login_user("testaaja", "vääräsalasana")
+
+    def test_login_correct_password(self):
+        createduser = create_user({"username":"testaaja",
+            "password":"salainensana",
+            "name":"Teppo Testaaja",
+            "email":"testiposti@gmail.com",
+            "phone":"32198700"})
+        token = generate_token(createduser)
+        
+        loggeduser = login_user("testaaja", "salainensana")
+
+        self.assertEqual(loggeduser, {"auth": token, "user": createduser})
