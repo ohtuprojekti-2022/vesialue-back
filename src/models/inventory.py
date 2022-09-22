@@ -28,7 +28,7 @@ class Inventory(MongoModel):
 
     @staticmethod
     def create(coordinates, inventorydate, method, attachments, name="", email="", phone="", other=""):
-        inventory = Inventory(coordinates, iventorydate, method, attachments, name, email, phone, other)
+        inventory = Inventory(coordinates, inventorydate, method, attachments, name, email, phone, other)
         inventory.save()
         return inventory
 
