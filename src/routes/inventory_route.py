@@ -1,9 +1,10 @@
 from argparse import Namespace
 from flask import request
 from flask_restx import Namespace, Resource
-from models.inventory import Inventory
+from services.inventory_service import add_inventory
 
 api = Namespace('add_inventory')
+
 
 @api.route('/')
 class AddInventory(Resource):
@@ -12,17 +13,6 @@ class AddInventory(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
+        inventory = add_inventory(data)
 
-        coordinates = data['coordinates']
-        time = data['time']
-        methods = data['methods']
-        attachments = data['attachments']
-        name = data['name']
-        email = data['email']
-        phonenumber = data['phonenumber']
-        other = data['other']
-
-        Inventory.create(coordinates=coordinates, time=time, methods=methods,
-        		  attachments=attachments, name=name, email=email, phonenumber=phonenumber, other=other)
-        return {'message': 'success'}, 200
-
+        return inventory, 200

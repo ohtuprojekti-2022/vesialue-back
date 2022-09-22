@@ -17,10 +17,10 @@ class Inventory(MongoModel):
     time = fields.DateTimeField(required=True)
     methods = fields.CharField(required=True)
     attachments = fields.BooleanField(required=True, default=False)
-    name = fields.CharField()
-    email = fields.CharField()
-    phonenumber = fields.CharField()
-    other = fields.CharField()
+    name = fields.CharField(blank=True)
+    email = fields.CharField(blank=True)
+    phonenumber = fields.CharField(blank=True)
+    other = fields.CharField(blank=True)
 
     class Meta:
         connection_alias = 'app'
