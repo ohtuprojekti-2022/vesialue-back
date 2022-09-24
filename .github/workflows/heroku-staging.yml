@@ -6,13 +6,10 @@ on:
   pull_request:
     branches: [ "staging" ]
 
-env:
-  MONGO_URI: ${{ secrets.MONGO_URI }}
-  SECRET_KEY: ${{ secrets.SECRET_KEY }}
-
 jobs:
   test:
     uses: ./.github/workflows/ci.yml
+    secrets: inherit
   build:
     needs: test
     runs-on: ubuntu-latest
