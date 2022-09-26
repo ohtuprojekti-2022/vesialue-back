@@ -13,9 +13,9 @@ def add_inventory(data):
     name = data['name']
     email = data['email']
     phone = data['phone']
-    other = data['other']
+    more_info = data['more_info']
 
     inventory = Inventory.create(coordinates=coordinates, inventorydate=inventorydate, method=method,
-        		  attachments=attachments, name=name, email=email, phone=phone, other=other)
+        		  attachments=attachments, name=name, email=email, phone=phone, more_info=more_info)
 
     return inventory.to_json()

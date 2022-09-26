@@ -18,7 +18,7 @@ class TestInventory(unittest.TestCase):
                                      name="Matti Mattinen",
                                      email="matti.mattinen@s-posti.fi",
                                      phone="0501234567",
-                                     other="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+                                     more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
 
         self.assertEqual(inventory.coordinates, "N56.10.240 W003.22.260")
         self.assertEqual(inventory.inventorydate, datetime.datetime(2018, 12, 25, 23, 50, 55, 999000))
@@ -27,4 +27,4 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inventory.name, "Matti Mattinen")
         self.assertEqual(inventory.email, "matti.mattinen@s-posti.fi")
         self.assertEqual(inventory.phone, "0501234567")
-        self.assertEqual(inventory.other, "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+        self.assertEqual(inventory.more_info, "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")

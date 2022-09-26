@@ -10,7 +10,7 @@ class Inventory(MongoModel):
             name: [String] The name of the submitter.
             email: [String] The email of the submitter.
             phone: [String] The phonenumber of the submitter.
-            other: [String] Other notes for the inventory.
+            more_info: [String] Other notes for the inventory.
     """
 
     coordinates = fields.CharField(required=True)
@@ -20,15 +20,15 @@ class Inventory(MongoModel):
     name = fields.CharField(blank=True)
     email = fields.CharField(blank=True)
     phone = fields.CharField(blank=True)
-    other = fields.CharField(blank=True)
+    more_info = fields.CharField(blank=True)
 
     class Meta:
         connection_alias = 'app'
         final = True
 
     @staticmethod
-    def create(coordinates, inventorydate, method, attachments, name="", email="", phone="", other=""):
-        inventory = Inventory(coordinates, inventorydate, method, attachments, name, email, phone, other)
+    def create(coordinates, inventorydate, method, attachments, name="", email="", phone="", more_info=""):
+        inventory = Inventory(coordinates, inventorydate, method, attachments, name, email, phone, more_info)
         inventory.save()
         return inventory
 
@@ -41,6 +41,6 @@ class Inventory(MongoModel):
             'name': str(self.name),
             'email': str(self.email),
             'phone': str(self.phone),
-            'other': str(self.other)
+            'other': str(self.more_info)
         }
     
