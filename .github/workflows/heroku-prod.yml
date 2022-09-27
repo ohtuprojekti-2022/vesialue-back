@@ -3,11 +3,10 @@ name: Production Docker image to Heroku
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
 jobs:
   test:
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/tests.yml
     secrets: inherit
   build:
     needs: test
