@@ -3,12 +3,11 @@ name: Staging Docker image to Heroku
 on:
   push:
     branches: [ "staging" ]
-  pull_request:
-    branches: [ "staging" ]
+
 
 jobs:
   test:
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/tests.yml
     secrets: inherit
   build:
     needs: test
