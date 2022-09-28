@@ -12,6 +12,14 @@ EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+
 def generate_token(user):
     return jwt.encode({'user_id': user['id']}, SECRET_KEY)
 
+def user_exists_by_field(field, value):
+    try:
+        User.objects.raw({
+            field: {'$eq': value}
+        }).first()
+    except (errors.DoesNotExist, errors.ModelDoesNotExist):
+        return False
+    return True
 
 def create_user(data):
     password = data['password']
@@ -28,14 +36,14 @@ def create_user(data):
     username = data['username']
     if len(username) < 3:
         raise BadRequest(description='username too short')
-    user = None
-    try:
-        user = User.objects.raw({
-            'username': {'$eq': username}
-        }).first()
+
+    if user_exists_by_field("username", username):
         raise BadRequest(description='username taken')
-    except (errors.DoesNotExist, errors.ModelDoesNotExist):
-        user = User.create(username=username, password=password,
+
+    if user_exists_by_field("email", email):
+        raise BadRequest(description='email taken')
+
+    user = User.create(username=username, password=password,
                            name=name, email=email, phone=phone)
     return user.to_json()
 
