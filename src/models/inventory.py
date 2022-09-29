@@ -41,6 +41,6 @@ class Inventory(MongoModel):
             'name': str(self.name),
             'email': str(self.email),
             'phone': str(self.phone),
-            'other': str(self.more_info)
+            'more_info': str(self.more_info)
         }
     
