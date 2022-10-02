@@ -13,7 +13,7 @@ connect_to_db()
 class TestUserService(unittest.TestCase):
     def setUp(self):
         test_tools.delete_all_users()
-    
+
     def test_create_user_password_too_short(self):
         with pytest.raises(BadRequest):
             create_user({"username":"testilyhytsana",
@@ -29,7 +29,7 @@ class TestUserService(unittest.TestCase):
                         "name":"Posti Testaaja",
                         "email":"huonosposti",
                         "phone":"102938475"})
-    
+
     def test_create_user_username_too_short(self):
         with pytest.raises(BadRequest):
             create_user({"username":"aa",
@@ -44,12 +44,26 @@ class TestUserService(unittest.TestCase):
                     "name":"Teppo Testaaja",
                     "email":"testiposti@gmail.com",
                     "phone":"32198700"})
-        
+
         with pytest.raises(BadRequest):
             create_user({"username":"taken_username",
                         "password":"salainensana",
                         "name":"Teppo Testaaja",
                         "email":"testiposti@gmail.com",
+                        "phone":"32198700"})
+
+    def test_create_user_email_taken(self):
+        create_user({"username":"emailtest2",
+                    "password":"salainensana",
+                    "name":"Teppo Testaaja",
+                    "email":"emailtaken@gmail.com",
+                    "phone":"32198700"})
+
+        with pytest.raises(BadRequest):
+            create_user({"username":"otheruser",
+                        "password":"salainensana",
+                        "name":"Teppo Testuser",
+                        "email":"emailtaken@gmail.com",
                         "phone":"32198700"})
 
     def test_create_user_success(self):
@@ -58,7 +72,7 @@ class TestUserService(unittest.TestCase):
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
                 "phone":"32198700"})
-        
+
         self.assertEqual(user, {
             'id': str(user["id"]) or None,
             'name': "Teppo Testaaja",
@@ -93,7 +107,7 @@ class TestUserService(unittest.TestCase):
     def test_login_invalid_credential_length(self):
         with pytest.raises(BadRequest):
             login_user("aa", "salainensana")
-        
+
         with pytest.raises(BadRequest):
             login_user("testaaja", "aaaa")
 
@@ -113,7 +127,7 @@ class TestUserService(unittest.TestCase):
             "name":"Teppo Testaaja",
             "email":"testiposti@gmail.com",
             "phone":"32198700"})
-        
+
         with pytest.raises(BadRequest):
             login_user("testaaja", "vääräsalasana")
 
@@ -124,7 +138,7 @@ class TestUserService(unittest.TestCase):
             "email":"testiposti@gmail.com",
             "phone":"32198700"})
         token = generate_token(createduser)
-        
+
         loggeduser = login_user("testaaja", "salainensana")
 
         self.assertEqual(loggeduser, {"auth": token, "user": createduser})
