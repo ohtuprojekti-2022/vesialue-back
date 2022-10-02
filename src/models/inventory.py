@@ -43,4 +43,4 @@ class Inventory(MongoModel):
             'phone': str(self.phone),
             'more_info': str(self.more_info)
         }
-    
+
