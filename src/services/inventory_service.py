@@ -39,7 +39,7 @@ class InventoryService:
             raise BadRequest(description='Invalid date.')
     
     def validate_method(self, method):
-        if method not in ["Näköhavainto", "Viistokaiutus", "Sukellus", "Muu, mikä?"]:
+        if method not in ["sight", "echo", "dive", "other"]:
             raise BadRequest(description='Invalid method.')
 
     def validate_email(self, email):

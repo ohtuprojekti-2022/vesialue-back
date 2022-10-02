@@ -18,7 +18,7 @@ class TestInventoryService(unittest.TestCase):
     def test_add_inventory(self):
         inventory = self.ins.add_inventory({"coordinates":"N56.10.240 W03.22.260",
                                        "inventorydate":"2018-12-05",
-                                       "method":"Viistokaiutus",
+                                       "method":"echo",
                                        "attachments":"True",
                                        "name":"Matti Mattinen",
                                        "email":"matti.mattinen@s-posti.fi",
@@ -27,7 +27,7 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory, {
             "coordinates" : "N56.10.240 W03.22.260",
             "inventorydate" : "2018-12-05 00:00:00",
-            "method" : "Viistokaiutus",
+            "method" : "echo",
             "attachments" : "True",
             "name" : "Matti Mattinen",
             "email" : "matti.mattinen@s-posti.fi",
@@ -38,7 +38,7 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(BadRequest):
             self.ins.add_inventory({"coordinates":"N56.10240 W003.22.260",
                                "inventorydate":"2018-12-25 23:50:55.999",
-                               "method":"Viistokaiutus",
+                               "method":"echo",
                                "attachments":"True",
                                "name":"Matti Mattinen",
                                "email":"matti.mattinen@s-posti.fi",
@@ -50,7 +50,7 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_inventory({"coordinates":"N56.10.240 W003.22.260",
                                "inventorydate":"2018-1225",
-                               "method":"Viistokaiutus",
+                               "method":"echo",
                                "attachments":"True",
                                "name":"Matti Mattinen",
                                "email":"matti.mattinen@s-posti.fi",
@@ -76,7 +76,7 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_inventory({"coordinates":"N56.10.240 W003.22.260",
                                "inventorydate":"2018-12-25",
-                               "method":"Sukellus",
+                               "method":"dive",
                                "attachments":"True",
                                "name":"Matti Mattinen",
                                "email":"matti.mattinen",
@@ -88,7 +88,7 @@ class TestInventoryService(unittest.TestCase):
     def test_create_multiple_users_with_valid_credentials(self):
         self.ins.add_inventory({"coordinates":"N26.10.240 E003.21.260",
                            "inventorydate":"2020-02-22",
-                           "method":"Sukellus",
+                           "method":"dive",
                            "attachments":"False",
                            "name":"Maija Maijala",
                            "email":"hot_mail@hotmail.fi",
@@ -97,7 +97,7 @@ class TestInventoryService(unittest.TestCase):
                            })
         self.ins.add_inventory({"coordinates":"S16.10.940 E024.21.260",
                            "inventorydate":"2021-02-22",
-                           "method":"Näköhavainto",
+                           "method":"sight",
                            "attachments":"False",
                            "name":"Anna Annala",
                            "email":"anna@hotmail.fi",
