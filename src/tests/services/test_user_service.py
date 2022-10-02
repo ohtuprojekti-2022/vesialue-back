@@ -90,7 +90,7 @@ class TestUserService(unittest.TestCase):
         create_user({"username":"testaaja2",
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
-                "email":"testiposti@gmail.com",
+                "email":"testiposti2@gmail.com",
                 "phone":"32198700"})
         users = test_tools.get_all_users()
         self.assertEqual(len(list(users)), 2)
