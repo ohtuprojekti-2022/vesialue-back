@@ -16,7 +16,7 @@ class Point(EmbeddedMongoModel):
     def to_json(self):
         return {
             'lat': str(self.lat),
-            'long': str(self.long)
+            'lng': str(self.long)
         }
 
 

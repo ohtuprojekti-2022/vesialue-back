@@ -21,7 +21,7 @@ class Inventory(MongoModel):
     areas = fields.EmbeddedDocumentListField(Area, blank=True)
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
-    visibilit = fields.CharField(blank=True)
+    visibility = fields.CharField(blank=True)
     method_info = fields.CharField(blank=True)
     attachments = fields.BooleanField(required=True, default=False)
     name = fields.CharField(blank=True)
@@ -55,9 +55,9 @@ class Inventory(MongoModel):
             'areas': areas,
             'inventorydate': str(self.inventorydate),
             'method': str(self.method),
-            'attachments': str(self.attachments),
+            'attachments': self.attachments,
             'name': str(self.name),
             'email': str(self.email),
             'phone': str(self.phone),
-            'more_info': str(self.more_info)
+            'moreInfo': str(self.more_info)
         }
