@@ -25,9 +25,9 @@ MONGO_URI=<MongoDB URI>
 SECRET_KEY=<encryption key>
 ```
 
-In the virtual environment, start the server from the root of the project by running:
+In the virtual environment, start the server from the root of the project in development mode by running:
 ```bash
-FLASK_APP=src/app.py flask run
+FLASK_ENV=development FLASK_APP=src/app.py flask run
 ```
 
 ## Docker
