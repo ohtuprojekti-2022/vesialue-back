@@ -1,11 +1,9 @@
 # vesialue-back
 
-![GitHub Actions](https://github.com/ohtuprojekti-2022/vesialue-back/workflows/CI/badge.svg)
-
 Vesialueen inventointi-ilmoitus backend
 
-- Production branch: main
-- Staging branch: staging
+- Production branch: main ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/tests.yml/badge.svg?branch=main)
+- Staging branch: staging ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/tests.yml/badge.svg?branch=staging)
 
 ## Heroku
 - [Staging](https://vesialue-back-staging.herokuapp.com)

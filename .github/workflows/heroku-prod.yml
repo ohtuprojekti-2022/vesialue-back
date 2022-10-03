@@ -2,9 +2,14 @@ name: Production Docker image to Heroku
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
+
 jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,5 +22,5 @@ jobs:
           heroku_app_name: ${{ secrets.HEROKU_PROD_NAME }}
           dockerfile_directory: ./
           dockerfile_name: Dockerfile
-          docker_options: "--no-cache"
+          docker_options: '--no-cache'
           process_type: web
