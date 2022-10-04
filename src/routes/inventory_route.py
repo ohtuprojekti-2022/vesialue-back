@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Namespace, Resource
 from services.inventory_service import inventory_service
 
-api = Namespace('add_inventory')
+api = Namespace('inventory')
 
 
 @api.route('/')
