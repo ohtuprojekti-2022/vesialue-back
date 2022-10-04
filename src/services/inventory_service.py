@@ -16,25 +16,31 @@ class InventoryService:
         """ Class constructor. Creates a new sight service."""
 
     def add_inventory(self, data):
+        properties = [
+            'coordinates',
+            'inventorydate',
+            'method',
+            'visibility',
+            'methodInfo',
+            'attachments',
+            'name',
+            'email',
+            'phone',
+            'moreInfo'
+        ]
+
+        for key in properties:
+            if not key in data:
+                raise BadRequest(description='invalid request, missing '+key)
+
         all_coordinates = data['coordinates']
-        inventorydate = data['inventorydate']
-        method = data['method']
-        visibility = data["visibility"]
-        method_info = data["methodInfo"]
-        attachments = data['attachments']
-        name = data['name']
-        email = data['email']
-        phone = data['phone']
-        more_info = data['moreInfo']
 
-        self.validate_inventorydate(inventorydate)
-        self.validate_method(method)
-        self.validate_email(email)
+        self.validate_inventorydate(data['inventorydate'])
+        self.validate_method(data['method'])
+        self.validate_email(data['email'])
 
-        inventory = Inventory.create(areas=[], inventorydate=inventorydate, method=method,
-                                     visibility=visibility, method_info=method_info,
-                                     attachments=attachments, name=name, email=email,
-                                     phone=phone, more_info=more_info)
+        inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'], method=data['method'], visibility=data['visibility'], method_info=data['methodInfo'],
+                                     attachments=data['attachments'], name=data['name'], email=data['email'], phone=data['phone'], more_info=data['moreInfo'])
 
         areas = []
         for area_coordinates in all_coordinates:
