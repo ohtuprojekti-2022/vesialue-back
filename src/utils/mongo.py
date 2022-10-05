@@ -3,4 +3,5 @@ from utils.config import MONGO_URI
 
 
 def connect_to_db():
+    print(MONGO_URI)
     connect(MONGO_URI, alias='app')
