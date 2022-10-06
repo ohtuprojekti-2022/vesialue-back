@@ -13,6 +13,18 @@ class InventoryService:
         """ Class constructor. Creates a new sight service."""
 
     def add_inventory(self, data):
+        
+        self.validate_missing_parameters(data)
+        self.validate_inventorydate(data['inventorydate'])
+        self.validate_method(data['method'])
+        self.validate_email(data['email'])
+
+        inventory = Inventory.create(data['coordinates'], data['inventorydate'], data['method'],
+            		  data['attachments'], data['name'], data['email'], data['phone'], data['more_info'])
+
+        return inventory.to_json()
+
+    def validate_missing_parameters(self, properties, data):
         properties = [
             'coordinates',
             'inventorydate',
@@ -26,16 +38,11 @@ class InventoryService:
 
         for key in properties:
             if not key in data:
-                raise BadRequest(description='invalid request, missing '+key)
+                raise BadRequest(description='Invalid request, missing '+key)
 
-        self.validate_inventorydate(data['inventorydate'])
-        self.validate_method(data['method'])
-        self.validate_email(data['email'])
-
-        inventory = Inventory.create(data['coordinates'], data['inventorydate'], data['method'],
-            		  data['attachments'], data['name'], data['email'], data['phone'], data['more_info'])
-
-        return inventory.to_json()
+    def validate_coordinates(self, coordinates):
+        print(coordinates)
+        #raise BadRequest(description='Invalid coordinates.')
 
     def validate_inventorydate(self, inventorydate):
         try:
@@ -49,7 +56,6 @@ class InventoryService:
 
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
-            print('jee')
             raise BadRequest(description='Invalid email.')
 
 inventory_service = InventoryService()
