@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequest
 from models.inventory import Inventory
 from models.area import Area
 
-COORDINATE_REGEX = r"{'lat': '-?[1-9]?[0-9].\d{14,15}', 'lng': '-?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{14,15}'}"
+COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{13,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{13,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
 
 
@@ -54,11 +54,10 @@ class InventoryService:
                 raise BadRequest(description='Invalid request, missing '+key)
 
     def validate_coordinates(self, coordinates):
-        print(coordinates)
         for area in coordinates:
             for point in area:
-                print(point)
                 if re.fullmatch(COORDINATE_REGEX, str(point)) is None:
+                    print('Invalid point:' + point)
                     raise BadRequest(description='Invalid coordinates.')
 
     def validate_inventorydate(self, inventorydate):
