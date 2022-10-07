@@ -2,8 +2,14 @@
 
 Vesialueen inventointi-ilmoitus backend
 
-- Production branch: main ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/tests.yml/badge.svg?branch=main)
-- Staging branch: staging ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/tests.yml/badge.svg?branch=staging)
+### Production branch: main
+- ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/heroku-prod.yml/badge.svg?branch=main)
+- [![codecov](https://codecov.io/gh/ohtuprojekti-2022/vesialue-back/branch/main/graph/badge.svg?token=VF8NXG8KIG)](https://codecov.io/gh/ohtuprojekti-2022/vesialue-back)
+
+### Staging branch: staging
+- ![Tests](https://github.com/ohtuprojekti-2022/vesialue-back/actions/workflows/heroku-staging.yml/badge.svg?branch=staging)
+- [![codecov](https://codecov.io/gh/ohtuprojekti-2022/vesialue-back/branch/staging/graph/badge.svg?token=VF8NXG8KIG)](https://codecov.io/gh/ohtuprojekti-2022/vesialue-back)
+
 
 ## Heroku
 - [Staging](https://vesialue-back-staging.herokuapp.com)
