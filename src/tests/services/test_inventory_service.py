@@ -43,21 +43,12 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(str(excinfo.value),
                          '400 Bad Request: Invalid method.')
 
-    def test_add_inventory_negative_coordinates(self):
-        report = deepcopy(TEST_REPORTS[0])
-        coords = [[{"lat": "60.17797731341533", "lng": "1.903111488320214"},
-                   {"lat": "60.17473315099313", "lng": "-24.886286597507773"},
-                   {"lat": "-70.17114712497474", "lng": "24.899506154574706"}]]
-        report['coordinates'] = coords
-        inventory = self.ins.add_inventory(report)
-        self.assertEqual(inventory['areas'], report['coordinates'])
-
     def test_add_inventory_invalid_coordinate_lng_too_big(self):
         invalid_report = deepcopy(TEST_REPORTS[0])
         with pytest.raises(BadRequest) as excinfo:
-            coords = [[{"lat": "60.17797731341533", "lng": "181.903111488320214"},
-                       {"lat": "60.17473315099313", "lng": "24.886286597507773"},
-                       {"lat": "60.17114712497474", "lng": "24.899506154574706"}]]
+            coords = [[{"lat": 60.17797731341533, "lng": 181.903111488320214},
+                       {"lat": 60.17473315099313, "lng": 24.886286597507773},
+                       {"lat": 60.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
             self.ins.add_inventory(invalid_report)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
@@ -65,9 +56,9 @@ class TestInventoryService(unittest.TestCase):
     def test_add_inventory_invalid_coordinate_lat_too_big(self):
         invalid_report = deepcopy(TEST_REPORTS[0])
         with pytest.raises(BadRequest) as excinfo:
-            coords = [[{"lat": "60.17797731341533", "lng": "81.903111488320214"},
-                       {"lat": "60.17473315099313", "lng": "24.886286597507773"},
-                       {"lat": "80.17114712497474", "lng": "24.899506154574706"}]]
+            coords = [[{"lat": 60.17797731341533, "lng": 81.903111488320214},
+                       {"lat": 60.17473315099313, "lng": 24.886286597507773},
+                       {"lat": 80.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
             self.ins.add_inventory(invalid_report)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
@@ -75,9 +66,9 @@ class TestInventoryService(unittest.TestCase):
     def test_add_inventory_invalid_coordinate_lat_invalid(self):
         invalid_report = deepcopy(TEST_REPORTS[0])
         with pytest.raises(BadRequest) as excinfo:
-            coords = [[{"lat": "60.17797731341533", "lng": "81.903111488320214"},
-                       {"lot": "60", "lng": "24.886286597507773"},
-                       {"lat": "80.17114712497474", "lng": "24.899506154574706"}]]
+            coords = [[{"lat": 60.17797731341533, "lng": 81.903111488320214},
+                       {"lot": 60, "lng": 24.886286597507773},
+                       {"lat": 80.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
             self.ins.add_inventory(invalid_report)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')

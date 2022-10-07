@@ -57,7 +57,6 @@ class InventoryService:
         for area in coordinates:
             for point in area:
                 if re.fullmatch(COORDINATE_REGEX, str(point)) is None:
-                    print('Invalid point:' + point)
                     raise BadRequest(description='Invalid coordinates.')
 
     def validate_inventorydate(self, inventorydate):

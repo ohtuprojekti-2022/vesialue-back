@@ -3,9 +3,9 @@ from models.user import User
 from models.inventory import Inventory
 
 """Methods and constants only used for unit testing."""
-COORDINATES = [[{"lat": "60.17797731341533", "lng": "24.903111488320214"},
-               {"lat": "60.17473315099313", "lng": "24.886286597507773"},
-               {"lat": "60.17114712497474", "lng": "24.899506154574706"}]]
+COORDINATES = [[{"lat": 60.17797731341533, "lng": 1.903111488320214},
+                {"lat": 60.17473315099313, "lng": -24.886286597507773},
+                {"lat": -70.17114712497474, "lng": 24.899506154574706}]]
 
 TEST_REPORTS = [{
     "coordinates": COORDINATES,
