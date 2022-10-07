@@ -1,4 +1,4 @@
-name: Staging Docker image to Heroku
+name: Staging Build
 
 on:
   push:
