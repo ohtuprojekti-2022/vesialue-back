@@ -28,3 +28,7 @@ jobs:
         run: coverage run -m pytest -m "not api"
       - name: Lint
         run: pylint src --fail-under=8
+      - name: Coverage report
+        run: coverage xml
+      - name: Coverage report to Codecov
+        run: bash <(curl -s https://codecov.io/bash)
