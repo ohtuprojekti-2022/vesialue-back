@@ -2,8 +2,8 @@ from pymodm import EmbeddedMongoModel, MongoModel, fields
 
 
 class Point(EmbeddedMongoModel):
-    lat = fields.CharField(required=True)
-    long = fields.CharField(required=True)
+    lat = fields.FloatField(required=True)
+    long = fields.FloatField(required=True)
 
     class Meta:
         connection_alias = 'app'
@@ -15,8 +15,8 @@ class Point(EmbeddedMongoModel):
 
     def to_json(self):
         return {
-            'lat': str(self.lat),
-            'lng': str(self.long)
+            'lat': self.lat,
+            'lng': self.long
         }
 
 
