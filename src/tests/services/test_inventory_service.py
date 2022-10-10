@@ -93,3 +93,13 @@ class TestInventoryService(unittest.TestCase):
         self.ins.add_inventory(TEST_REPORTS[1])
         inventories = test_tools.get_all_inventories()
         self.assertEqual(len(list(inventories)), 2)
+    
+    def test_get_areas_returns_empty_list_when_database_empty(self):
+        areas = self.ins.get_areas()
+        
+        self.assertEqual(0, len(areas))
+
+    def test_get_areas_returns_list_of_correct_length(self):
+        self.ins.add_inventory(TEST_REPORTS[0])
+        areas = self.ins.get_areas()
+        self.assertEqual(1, len(areas))
