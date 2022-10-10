@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash
 
 
 class User(MongoModel):
+    _id = fields.ObjectId()
     username = fields.CharField(required=True, min_length=3)
     password = fields.CharField(required=True, min_length=10)
     name = fields.CharField(blank=True)
@@ -23,7 +24,7 @@ class User(MongoModel):
 
     def to_json(self):
         return {
-            'id': str(self._id) or None,
+            'id': str(self._id),
             'name': self.name,
             'email': self.email,
             'phone': self.phone,
