@@ -1,6 +1,7 @@
 import re
 import datetime
-from werkzeug.exceptions import BadRequest
+from bson.objectid import ObjectId
+from werkzeug.exceptions import BadRequest, NotFound
 from models.inventory import Inventory
 from models.area import Area
 
@@ -24,7 +25,8 @@ class InventoryService:
 
         inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
-                                     method_info=data['methodInfo'], attachments=data['attachments'],
+                                     method_info=data['methodInfo'],
+                                     attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'])
 
@@ -33,7 +35,19 @@ class InventoryService:
             areas.append(Area.create(inventory, area_coordinates))
 
         inventory = Inventory.update_areas(inventory, new_areas=areas)
+        print(inventory.to_json())
         return inventory.to_json()
+
+    def get_inventory(self, report_id):
+        # pylint: disable=no-member
+        report = None
+        try:
+            report = Inventory.objects.get({'_id': ObjectId(report_id)})
+        except Inventory.DoesNotExist:
+            raise NotFound(description='404 not found')
+
+        # pylint: enable=no-member
+        return report.to_json()
 
     def validate_missing_parameters(self, data):
         properties = [

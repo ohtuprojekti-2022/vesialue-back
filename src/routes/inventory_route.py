@@ -15,3 +15,10 @@ class AddInventory(Resource):
         inventory = inventory_service.add_inventory(data)
 
         return inventory, 200
+
+@api.route('/<string:report_id>')
+class GetInventory(Resource):
+    def get(self, report_id):
+        inventory = inventory_service.get_inventory(report_id)
+        return inventory, 200
+        
