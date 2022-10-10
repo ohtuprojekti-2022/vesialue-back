@@ -15,3 +15,7 @@ class AddInventory(Resource):
         inventory = inventory_service.add_inventory(data)
 
         return inventory, 200
+    
+    def get(self):
+        return inventory_service.get_all_inventories()
+

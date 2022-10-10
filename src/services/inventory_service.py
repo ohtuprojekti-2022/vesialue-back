@@ -72,6 +72,13 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
+    
+    def get_all_inventories(self):
+        inventories = []
+        for item in Inventory.objects.all():
+            inventories.append(item.to_json())
+
+        return inventories
 
 
 inventory_service = InventoryService()
