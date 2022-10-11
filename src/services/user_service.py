@@ -61,8 +61,8 @@ def login_user(username, password):
         user = User.objects.raw({
             'username': {'$eq': username}
         }).first()
-    except (errors.DoesNotExist, errors.ModelDoesNotExist):
-        raise BadRequest(description='incorrect username or password')
+    except (errors.DoesNotExist, errors.ModelDoesNotExist) as error:
+        raise BadRequest(description='incorrect username or password') from error
     # pylint: enable=no-member
 
     # Validate user password hash

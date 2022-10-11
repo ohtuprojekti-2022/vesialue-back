@@ -44,10 +44,8 @@ class InventoryService:
         report = None
         try:
             report = Inventory.objects.get({'_id': ObjectId(report_id)})
-        except Inventory.DoesNotExist:
-            raise NotFound(description='404 not found')
-        except InvalidId:
-            raise NotFound(description='404 not found')
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
 
         # pylint: enable=no-member
         return report.to_json()
@@ -79,8 +77,8 @@ class InventoryService:
     def validate_inventorydate(self, inventorydate):
         try:
             datetime.datetime.strptime(inventorydate, '%Y-%m-%d')
-        except ValueError:
-            raise BadRequest(description='Invalid date.')
+        except ValueError as error:
+            raise BadRequest(description='Invalid date.') from error
 
     def validate_method(self, method):
         if method not in ["sight", "echo", "dive", "other"]:
