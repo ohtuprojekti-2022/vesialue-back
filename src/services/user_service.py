@@ -13,6 +13,7 @@ def generate_token(user):
     return jwt.encode({'user_id': user['id']}, SECRET_KEY)
 
 def user_exists_by_field(field, value):
+    # pylint: disable=no-member
     try:
         User.objects.raw({
             field: {'$eq': value}
@@ -20,6 +21,7 @@ def user_exists_by_field(field, value):
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
         return False
     return True
+    # pylint: enable=no-member
 
 def create_user(data):
     password = data['password']
@@ -54,12 +56,14 @@ def login_user(username, password):
         raise BadRequest(description='incorrect username or password')
 
     # Check if user exists in the database
+    # pylint: disable=no-member
     try:
         user = User.objects.raw({
             'username': {'$eq': username}
         }).first()
     except (errors.DoesNotExist, errors.ModelDoesNotExist):
         raise BadRequest(description='incorrect username or password')
+    # pylint: enable=no-member
 
     # Validate user password hash
     if not check_password_hash(user.password, password):
