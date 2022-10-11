@@ -1,6 +1,7 @@
 import re
 import datetime
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound
 from models.inventory import Inventory
 from models.area import Area
@@ -44,6 +45,8 @@ class InventoryService:
         try:
             report = Inventory.objects.get({'_id': ObjectId(report_id)})
         except Inventory.DoesNotExist:
+            raise NotFound(description='404 not found')
+        except InvalidId:
             raise NotFound(description='404 not found')
 
         # pylint: enable=no-member

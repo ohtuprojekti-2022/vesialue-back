@@ -7,6 +7,8 @@ mongo.connect_to_db()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
+app.config['ERROR_404_HELP'] = False
+
 CORS(app)
 
 api.init_app(app)
