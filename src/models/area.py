@@ -45,6 +45,6 @@ class Area(MongoModel):
             return coordinates
         return {
             'id': str(self._id),
-            'inventory': str(self.inventory),
+            'inventory_id': str(self.inventory._id),
             'coodinates': coordinates
         }
