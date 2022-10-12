@@ -111,3 +111,13 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(NotFound) as excinfo:
             self.ins.get_inventory("asdf")
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+    
+    def test_get_areas_returns_empty_list_when_database_empty(self):
+        areas = self.ins.get_areas()
+        
+        self.assertEqual(0, len(areas))
+
+    def test_get_areas_returns_list_of_correct_length(self):
+        self.ins.add_inventory(TEST_REPORTS[0])
+        areas = self.ins.get_areas()
+        self.assertEqual(1, len(areas))

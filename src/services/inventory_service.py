@@ -87,6 +87,13 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
+    
+    def get_areas(self):
+        areas = []
+        for area in Area.objects.all():
+            areas.append(area.to_json())
+
+        return areas
 
 
 inventory_service = InventoryService()
