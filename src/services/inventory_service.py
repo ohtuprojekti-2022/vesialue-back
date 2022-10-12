@@ -24,7 +24,7 @@ class InventoryService:
         self.validate_inventorydate(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_email(data['email'])
-        
+
         user = None
         if data['user']:
             user = User.objects.values().get({'username': data['user']['username']})
@@ -91,7 +91,7 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
-            
+
 
 
 inventory_service = InventoryService()

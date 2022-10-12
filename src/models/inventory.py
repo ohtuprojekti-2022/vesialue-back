@@ -55,7 +55,7 @@ class Inventory(MongoModel):
             areas.append(area.to_json(simple=True))
         user_json = None
         if self.user:
-        	user_json = self.user.to_json()
+            user_json = self.user.to_json()
         return {
             'id': str(self._id),
             'areas': areas,
