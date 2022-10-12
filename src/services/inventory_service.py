@@ -15,7 +15,7 @@ class InventoryService:
     """ Class responsible for inventory logic."""
 
     def __init__(self):
-        """ Class constructor. Creates a new sight service."""
+        """ Class constructor. Creates a new inventory service."""
 
     def add_inventory(self, data):
 
@@ -41,19 +41,18 @@ class InventoryService:
             areas.append(Area.create(inventory, area_coordinates))
 
         inventory = Inventory.update_areas(inventory, new_areas=areas)
-        print(inventory.to_json())
         return inventory.to_json()
 
-    def get_inventory(self, report_id):
+    def get_inventory(self, inventory_id):
         # pylint: disable=no-member
-        report = None
+        inventory = None
         try:
-            report = Inventory.objects.get({'_id': ObjectId(report_id)})
+            inventory = Inventory.objects.get({'_id': ObjectId(inventory_id)})
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
         # pylint: enable=no-member
-        return report.to_json()
+        return inventory.to_json()
 
     def validate_missing_parameters(self, data):
         properties = [
