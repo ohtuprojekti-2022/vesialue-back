@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import login_user, generate_token
+from services.user_service import login_user
 
 api = Namespace('login')
 

@@ -8,7 +8,7 @@ api = Namespace('register')
 class Register(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
-        if (content_type != 'application/json'):
+        if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
         user = create_user(data)
