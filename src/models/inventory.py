@@ -55,6 +55,7 @@ class Inventory(MongoModel):
             'areas': areas,
             'inventorydate': str(self.inventorydate),
             'method': str(self.method),
+            'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
             'email': str(self.email),
