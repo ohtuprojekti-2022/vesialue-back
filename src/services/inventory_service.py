@@ -5,6 +5,7 @@ from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound
 from models.inventory import Inventory
 from models.area import Area
+from models.user import User
 
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{13,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{13,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
@@ -23,13 +24,17 @@ class InventoryService:
         self.validate_inventorydate(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_email(data['email'])
+        
+        user = None
+        if data['user']:
+            user = User.objects.values().get({'username': data['user']['username']})
 
         inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
-                                     more_info=data['moreInfo'])
+                                     more_info=data['moreInfo'], user=user)
 
         areas = []
         for area_coordinates in data['coordinates']:
@@ -87,6 +92,7 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
+            
 
 
 inventory_service = InventoryService()

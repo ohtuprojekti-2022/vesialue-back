@@ -3,12 +3,21 @@ from models.user import User
 from models.inventory import Inventory
 
 """Methods and constants only used for unit testing."""
+USERS = [{
+	"username": "testaaja",
+	"password": "sanasala123?",
+	"name": "Hanna Hannala",
+	"email": "hanna@sposti.fi",
+	"phone": "055223344"
+}]
+
 COORDINATES = [[{"lat": 60.17797731341533, "lng": 1.903111488320214},
                 {"lat": 60.17473315099313, "lng": -24.886286597507773},
                 {"lat": -70.17114712497474, "lng": 24.899506154574706}]]
 
 TEST_REPORTS = [{
     "coordinates": COORDINATES,
+    "user": None,
     "inventorydate": "2021-02-22",
     "method": "other",
     "visibility": "",
@@ -21,6 +30,7 @@ TEST_REPORTS = [{
 },
     {
     "coordinates": COORDINATES,
+    "user": None,
     "inventorydate": "2020-02-22",
     "method": "dive",
     "visibility": "normal",
@@ -30,6 +40,19 @@ TEST_REPORTS = [{
     "email": "hot_mail@hotmail.fi",
     "phone": "0449996666",
     "moreInfo": "Ei lisättävää."
+},
+    {
+    "coordinates": COORDINATES,
+    "user": USERS[0],
+    "inventorydate": "1988-12-12",
+    "method": "dive",
+    "visibility": "normal",
+    "methodInfo": "",
+    "attachments": False,
+    "name": "",
+    "email": "hanna@sposti.fi",
+    "phone": "",
+    "moreInfo": "Sumuista."
 }]
 
 

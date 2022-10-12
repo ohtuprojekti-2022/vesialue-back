@@ -6,8 +6,9 @@ import json
 from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
 from werkzeug.exceptions import BadRequest, NotFound
-from tests.test_tools import TEST_REPORTS
+from tests.test_tools import TEST_REPORTS, USERS
 import tests.test_tools as test_tools
+from models.user import User
 
 connect_to_db()
 
@@ -15,12 +16,18 @@ connect_to_db()
 class TestInventoryService(unittest.TestCase):
     def setUp(self):
         test_tools.delete_all_inventories()
+        test_tools.delete_all_users()
         self.ins = InventoryService()
-
+        self.user = User.create(username="testaaja",
+                                password="sanasala123?",
+                                name="Hanna Hannala",
+                                email="hanna@sposti.fi",
+                                phone="055223344")
 
     def test_add_inventory(self):
         inventory = self.ins.add_inventory(TEST_REPORTS[0])
         self.assertEqual(inventory['areas'], TEST_REPORTS[0]['coordinates'])
+        self.assertEqual(inventory['user'], None)
         self.assertEqual(inventory['inventorydate'][0:10], TEST_REPORTS[0]['inventorydate'])
         self.assertEqual(inventory['method'], TEST_REPORTS[0]['method'])
         self.assertEqual(inventory['attachments'], TEST_REPORTS[0]['attachments'])
@@ -28,6 +35,18 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory['email'], TEST_REPORTS[0]['email'])
         self.assertEqual(inventory['phone'], TEST_REPORTS[0]['phone'])
         self.assertEqual(inventory['moreInfo'], TEST_REPORTS[0]['moreInfo'])
+
+    def test_add_inventory_with_user(self):
+        inventory = self.ins.add_inventory(TEST_REPORTS[2])
+        self.assertEqual(inventory['areas'], TEST_REPORTS[2]['coordinates'])
+        self.assertEqual(inventory['user'], self.user.to_json())
+        self.assertEqual(inventory['inventorydate'][0:10], TEST_REPORTS[2]['inventorydate'])
+        self.assertEqual(inventory['method'], TEST_REPORTS[2]['method'])
+        self.assertEqual(inventory['attachments'], TEST_REPORTS[2]['attachments'])
+        self.assertEqual(inventory['name'], TEST_REPORTS[2]['name'])
+        self.assertEqual(inventory['email'], TEST_REPORTS[2]['email'])
+        self.assertEqual(inventory['phone'], TEST_REPORTS[2]['phone'])
+        self.assertEqual(inventory['moreInfo'], TEST_REPORTS[2]['moreInfo'])
 
     def test_add_inventory_invalid_date(self):
         with pytest.raises(BadRequest) as excinfo:
