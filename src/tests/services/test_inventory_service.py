@@ -2,9 +2,10 @@ from copy import deepcopy
 import unittest
 import pytest
 import jwt
+import json
 from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 from tests.test_tools import TEST_REPORTS
 import tests.test_tools as test_tools
 
@@ -93,3 +94,30 @@ class TestInventoryService(unittest.TestCase):
         self.ins.add_inventory(TEST_REPORTS[1])
         inventories = test_tools.get_all_inventories()
         self.assertEqual(len(list(inventories)), 2)
+
+    def test_get_inventory_by_id(self):
+        id1 = self.ins.add_inventory(TEST_REPORTS[0])['id']
+        id2 = self.ins.add_inventory(TEST_REPORTS[1])['id']
+
+        inv1 = self.ins.get_inventory(id1)
+        inv2 = self.ins.get_inventory(id2)
+
+        inv1, inv2 = json.dumps(inv1, sort_keys=True), json.dumps(inv1, sort_keys=True)
+        self.assertEqual(inv1, inv2)
+
+    def test_get_inventory_invalid_id(self):
+        self.ins.add_inventory(TEST_REPORTS[0])
+        self.ins.add_inventory(TEST_REPORTS[1])
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_inventory("asdf")
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+    
+    def test_get_areas_returns_empty_list_when_database_empty(self):
+        areas = self.ins.get_areas()
+        
+        self.assertEqual(0, len(areas))
+
+    def test_get_areas_returns_list_of_correct_length(self):
+        self.ins.add_inventory(TEST_REPORTS[0])
+        areas = self.ins.get_areas()
+        self.assertEqual(1, len(areas))

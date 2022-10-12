@@ -1,6 +1,8 @@
 import re
 import datetime
-from werkzeug.exceptions import BadRequest
+from bson.objectid import ObjectId
+from bson.errors import InvalidId
+from werkzeug.exceptions import BadRequest, NotFound
 from models.inventory import Inventory
 from models.area import Area
 
@@ -24,7 +26,8 @@ class InventoryService:
 
         inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
-                                     method_info=data['methodInfo'], attachments=data['attachments'],
+                                     method_info=data['methodInfo'],
+                                     attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'])
 
@@ -33,7 +36,19 @@ class InventoryService:
             areas.append(Area.create(inventory, area_coordinates))
 
         inventory = Inventory.update_areas(inventory, new_areas=areas)
+        print(inventory.to_json())
         return inventory.to_json()
+
+    def get_inventory(self, report_id):
+        # pylint: disable=no-member
+        report = None
+        try:
+            report = Inventory.objects.get({'_id': ObjectId(report_id)})
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+        # pylint: enable=no-member
+        return report.to_json()
 
     def validate_missing_parameters(self, data):
         properties = [
@@ -62,8 +77,8 @@ class InventoryService:
     def validate_inventorydate(self, inventorydate):
         try:
             datetime.datetime.strptime(inventorydate, '%Y-%m-%d')
-        except ValueError:
-            raise BadRequest(description='Invalid date.')
+        except ValueError as error:
+            raise BadRequest(description='Invalid date.') from error
 
     def validate_method(self, method):
         if method not in ["sight", "echo", "dive", "other"]:
@@ -73,12 +88,12 @@ class InventoryService:
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
     
-    def get_all_inventories(self):
-        inventories = []
-        for item in Inventory.objects.all():
-            inventories.append(item.to_json())
+    def get_areas(self):
+        areas = []
+        for area in Area.objects.all():
+            areas.append(area.to_json())
 
-        return inventories
+        return areas
 
 
 inventory_service = InventoryService()
