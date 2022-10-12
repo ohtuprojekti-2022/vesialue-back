@@ -95,5 +95,10 @@ class InventoryService:
 
         return areas
 
+    def get_all_inventories(self):
+        inventories = []
+        for item in Inventory.objects.all():
+            inventories.append(item.to_json())
+
 
 inventory_service = InventoryService()
