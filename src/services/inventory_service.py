@@ -100,5 +100,6 @@ class InventoryService:
         for item in Inventory.objects.all():
             inventories.append(item.to_json())
 
+        return inventories
 
 inventory_service = InventoryService()
