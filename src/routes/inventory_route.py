@@ -15,6 +15,8 @@ class AddInventory(Resource):
         inventory = inventory_service.add_inventory(data)
 
         return inventory, 200
+    def get(self):
+        return inventory_service.get_all_inventories(), 200
 
 @api.route('/<string:report_id>/')
 class GetInventory(Resource):
@@ -26,8 +28,3 @@ class GetInventory(Resource):
 class GetAreas(Resource):
     def get(self):
         return inventory_service.get_areas(), 200
-
-@api.route('/all_inventories/')
-class GetAllInventories(Resource):
-    def get(self):
-        return inventory_service.get_all_inventories(), 200

@@ -36,6 +36,13 @@ In the virtual environment, start the server from the root of the project in dev
 FLASK_ENV=development FLASK_APP=src/app.py flask run
 ```
 
+## Testing
+
+Run tests and collect coverage report:
+```bash
+FLASK_ENV=test coverage run -m pytest
+```
+
 ## Docker
 ### Building image
 ```docker build -t vesialue-back .```
