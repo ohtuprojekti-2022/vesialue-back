@@ -29,14 +29,21 @@ Provide environment variables by creating an `.env` file at the root of the proj
 ```bash
 MONGO_URI=<MongoDB URI>
 SECRET_KEY=<encryption key>
+FLASK_APP=src/app.py
+FLASK_ENV=development
 ```
 
 In the virtual environment, start the server from the root of the project in development mode by running:
 ```bash
-FLASK_ENV=development FLASK_APP=src/app.py flask run
+flask run
 ```
 
 ## Testing
+
+Provide additional environment variables in `.env` file created before:
+```bash
+TEST_MONGO_URI=<MongoDB URI>
+```
 
 Run tests and collect coverage report:
 ```bash
