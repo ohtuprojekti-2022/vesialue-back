@@ -25,7 +25,7 @@ class TestInventoryService(unittest.TestCase):
                                 phone="055223344")
 
     def test_add_inventory(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[0])
+        inventory = self.ins.add_inventory(TEST_REPORTS[0], None)
         self.assertEqual(inventory['areas'], TEST_REPORTS[0]['coordinates'])
         self.assertEqual(inventory['user'], None)
         self.assertEqual(inventory['inventorydate'][0:10], TEST_REPORTS[0]['inventorydate'])
@@ -37,7 +37,7 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory['moreInfo'], TEST_REPORTS[0]['moreInfo'])
 
     def test_add_inventory_with_user(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[2])
+        inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)
         self.assertEqual(inventory['areas'], TEST_REPORTS[2]['coordinates'])
         self.assertEqual(inventory['user'], self.user.to_json())
         self.assertEqual(inventory['inventorydate'][0:10], TEST_REPORTS[2]['inventorydate'])
@@ -52,14 +52,14 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(BadRequest) as excinfo:
             invalid_report = deepcopy(TEST_REPORTS[0])
             invalid_report['inventorydate'] = 'asdf'
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid date.')
 
     def test_add_inventory_invalid_method(self):
         with pytest.raises(BadRequest) as excinfo:
             invalid_report = deepcopy(TEST_REPORTS[0])
             invalid_report['method'] = 'asdf'
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value),
                          '400 Bad Request: Invalid method.')
 
@@ -70,7 +70,7 @@ class TestInventoryService(unittest.TestCase):
                        {"lat": 60.17473315099313, "lng": 24.886286597507773},
                        {"lat": 60.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
 
     def test_add_inventory_invalid_coordinate_lat_too_big(self):
@@ -80,7 +80,7 @@ class TestInventoryService(unittest.TestCase):
                        {"lat": 60.17473315099313, "lng": 24.886286597507773},
                        {"lat": 80.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
 
     def test_add_inventory_invalid_coordinate_lat_invalid(self):
@@ -90,7 +90,7 @@ class TestInventoryService(unittest.TestCase):
                        {"lot": 60, "lng": 24.886286597507773},
                        {"lat": 80.17114712497474, "lng": 24.899506154574706}]]
             invalid_report['coordinates'] = coords
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
 
     def test_add_inventory_invalid_coordinate_not_list(self):
@@ -98,25 +98,25 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(BadRequest) as excinfo:
             coords = "'lat': '60.17797731341533', 'lng': '81.903111488320214'"
             invalid_report['coordinates'] = coords
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid coordinates.')
 
     def test_add_inventory_invalid_email(self):
         with pytest.raises(BadRequest) as excinfo:
             invalid_report = deepcopy(TEST_REPORTS[0])
             invalid_report['email'] = 'asdf'
-            self.ins.add_inventory(invalid_report)
+            self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid email.')
 
     def test_create_multiple_inventory_reports_with_valid_info(self):
-        self.ins.add_inventory(TEST_REPORTS[0])
-        self.ins.add_inventory(TEST_REPORTS[1])
+        self.ins.add_inventory(TEST_REPORTS[0], None)
+        self.ins.add_inventory(TEST_REPORTS[1], None)
         inventories = test_tools.get_all_inventories()
         self.assertEqual(len(list(inventories)), 2)
 
     def test_get_inventory_by_id(self):
-        id1 = self.ins.add_inventory(TEST_REPORTS[0])['id']
-        id2 = self.ins.add_inventory(TEST_REPORTS[1])['id']
+        id1 = self.ins.add_inventory(TEST_REPORTS[0], None)['id']
+        id2 = self.ins.add_inventory(TEST_REPORTS[1], None)['id']
 
         inv1 = self.ins.get_inventory(id1)
         inv2 = self.ins.get_inventory(id2)
@@ -125,8 +125,8 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inv1, inv2)
 
     def test_get_inventory_invalid_id(self):
-        self.ins.add_inventory(TEST_REPORTS[0])
-        self.ins.add_inventory(TEST_REPORTS[1])
+        self.ins.add_inventory(TEST_REPORTS[0], None)
+        self.ins.add_inventory(TEST_REPORTS[1], None)
         with pytest.raises(NotFound) as excinfo:
             self.ins.get_inventory("asdf")
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')

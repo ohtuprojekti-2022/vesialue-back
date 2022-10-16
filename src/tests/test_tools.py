@@ -17,7 +17,6 @@ COORDINATES = [[{"lat": 60.17797731341533, "lng": 1.903111488320214},
 
 TEST_REPORTS = [{
     "coordinates": COORDINATES,
-    "user": None,
     "inventorydate": "2021-02-22",
     "method": "other",
     "visibility": "",
@@ -30,7 +29,6 @@ TEST_REPORTS = [{
 },
     {
     "coordinates": COORDINATES,
-    "user": None,
     "inventorydate": "2020-02-22",
     "method": "dive",
     "visibility": "normal",
@@ -43,7 +41,6 @@ TEST_REPORTS = [{
 },
     {
     "coordinates": COORDINATES,
-    "user": USERS[0],
     "inventorydate": "1988-12-12",
     "method": "dive",
     "visibility": "normal",
