@@ -8,7 +8,7 @@ COORDINATES = [[{"lat": 60.17797731341533, "lng": 1.903111488320214},
                 {"lat": -70.17114712497474, "lng": 24.899506154574706}]]
 
 TEST_REPORTS = [{
-    "coordinates": COORDINATES,
+    "areas": COORDINATES,
     "inventorydate": "2021-02-22",
     "method": "other",
     "visibility": "",
@@ -20,7 +20,7 @@ TEST_REPORTS = [{
     "moreInfo": "Hylyn näin, kun ohi kävelin."
 },
     {
-    "coordinates": COORDINATES,
+    "areas": COORDINATES,
     "inventorydate": "2020-02-22",
     "method": "dive",
     "visibility": "normal",

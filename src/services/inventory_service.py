@@ -19,7 +19,7 @@ class InventoryService:
     def add_inventory(self, data):
 
         self.validate_missing_parameters(data)
-        self.validate_coordinates(data['coordinates'])
+        self.validate_coordinates(data['areas'])
         self.validate_inventorydate(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_email(data['email'])
@@ -32,7 +32,7 @@ class InventoryService:
                                      more_info=data['moreInfo'])
 
         areas = []
-        for area_coordinates in data['coordinates']:
+        for area_coordinates in data['areas']:
             areas.append(Area.create(inventory, area_coordinates))
 
         inventory = Inventory.update_areas(inventory, new_areas=areas)
@@ -52,7 +52,7 @@ class InventoryService:
 
     def validate_missing_parameters(self, data):
         properties = [
-            'coordinates',
+            'areas',
             'inventorydate',
             'method',
             'visibility',
@@ -72,7 +72,7 @@ class InventoryService:
         for area in coordinates:
             for point in area:
                 if re.fullmatch(COORDINATE_REGEX, str(point)) is None:
-                    raise BadRequest(description='Invalid coordinates.')
+                    raise BadRequest(description='Invalid areas.')
 
     def validate_inventorydate(self, inventorydate):
         try:
@@ -87,6 +87,19 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
+    
+    def get_areas(self):
+        areas = []
+        for area in Area.objects.all():
+            areas.append(area.to_json())
 
+        return areas
+
+    def get_all_inventories(self):
+        inventories = []
+        for item in Inventory.objects.all():
+            inventories.append(item.to_json())
+
+        return inventories
 
 inventory_service = InventoryService()

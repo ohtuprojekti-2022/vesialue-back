@@ -53,8 +53,10 @@ class Inventory(MongoModel):
         return {
             'id': str(self._id),
             'areas': areas,
-            'inventorydate': str(self.inventorydate),
+            'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
+            'visibility': str(self.visibility),
+            'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
             'email': str(self.email),
