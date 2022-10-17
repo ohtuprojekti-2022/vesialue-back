@@ -137,19 +137,19 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(0, len(areas))
 
     def test_get_areas_returns_list_of_correct_length(self):
-        self.ins.add_inventory(TEST_REPORTS[0])
+        self.ins.add_inventory(TEST_REPORTS[0], None)
         areas = self.ins.get_areas()
         self.assertEqual(1, len(areas))
 
-    def test_get_all_inventories_returns_correct(self):
-        self.ins.add_inventory(TEST_REPORTS[0])
-        self.ins.add_inventory(TEST_REPORTS[1])
+    def test_get_all_inventories(self):
+        self.ins.add_inventory(TEST_REPORTS[0], None)
+        self.ins.add_inventory(TEST_REPORTS[1], None)
         inventories = self.ins.get_all_inventories()
 
         for inventory in inventories:
             inventory.pop("id")
 
-        self.assertEqual([TEST_REPORTS[0], TEST_REPORTS[1]], inventories)
+        self.assertEqual(2, len(inventories))
 
     def test_get_all_inventories_returns_empty_list(self):
         inventories = self.ins.get_all_inventories()

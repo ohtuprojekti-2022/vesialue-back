@@ -50,7 +50,7 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inventory.phone, "")
         self.assertEqual(
             inventory.more_info, "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
-        
+
     def test_create_inventory_without_user(self):
         inventory = Inventory.create(areas=[],
 							 user=None,
@@ -67,9 +67,9 @@ class TestInventory(unittest.TestCase):
         areas = []
         for area_coordinates in COORDINATES:
             areas.append(Area.create(inventory, area_coordinates))
-        
+
         inventory = Inventory.update_areas(inventory, new_areas=areas)
-        
+
         self.assertEqual(inventory.areas, areas)
         self.assertEqual(inventory.user, None)
         self.assertEqual(inventory.inventorydate, datetime.datetime(1987, 3, 12, 0, 0))
@@ -81,7 +81,7 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(inventory.email, "matti@sposti.fi")
         self.assertEqual(inventory.phone, "050556677")
         self.assertEqual(inventory.more_info, "Ei ole..")
-        
+
     def test_to_json(self):
         inventory = Inventory.create(areas=[],
         							 user=self.user,
@@ -97,7 +97,7 @@ class TestInventory(unittest.TestCase):
         areas = []
         for area_coordinates in COORDINATES:
             areas.append(Area.create(inventory, area_coordinates))
-        
+
         inventory = Inventory.update_areas(inventory, new_areas=areas)
 
         inventory_json = inventory.to_json()
@@ -107,13 +107,14 @@ class TestInventory(unittest.TestCase):
                           'areas': [[{'lat': 60.17797731341533, 'lng': 1.903111488320214},
                                     {'lat': 60.17473315099313, 'lng': -24.886286597507773},
                                     {'lat': -70.17114712497474, 'lng': 24.899506154574706}]],
-                          'user': self.user.to_json(),
-                          'inventorydate': '1966-03-12 00:00:00',
-                          'method': 'dive',
                           'attachments': True,
+                          'inventorydate': '1966-03-12',
+                          'method': 'dive',
+                          'methodInfo': '',
+                          'moreInfo' : 'Vesi oli kylmää.',
                           'name': '',
                           'email': '',
                           'phone': '',
-                          'moreInfo' : 'Vesi oli kylmää.'
+                          'user': self.user.to_json(),
+                          'visibility': 'normal'
         })
-
