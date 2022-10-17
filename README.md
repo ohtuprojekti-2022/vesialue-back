@@ -29,6 +29,7 @@ Provide environment variables by creating an `.env` file at the root of the proj
 ```bash
 MONGO_URI=<MongoDB URI>
 SECRET_KEY=<encryption key>
+BIG_DATA_API_KEY<big data geo api key>
 FLASK_APP=src/app.py
 FLASK_ENV=development
 ```
