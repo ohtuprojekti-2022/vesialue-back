@@ -1,11 +1,13 @@
-from pymodm import MongoModel, fields
+from pymodm import MongoModel, fields, ReferenceField
 from models.area import Area
+from models.user import User
 
 
 class Inventory(MongoModel):
     """ Class that represents a single inventory.
         Attributes:
             areas: [String] areas of the inventory area.
+            user: [USER] user that submitted the inventory.
             inventorydate: [String] Time of the inventory.
             method: [String] sight || echo || dive || other
             visibility: [String] bad || normal || good
@@ -28,6 +30,7 @@ class Inventory(MongoModel):
     email = fields.CharField(blank=True)
     phone = fields.CharField(blank=True)
     more_info = fields.CharField(blank=True)
+    user = ReferenceField(User, blank= True)
 
     class Meta:
         connection_alias = 'app'
@@ -35,9 +38,9 @@ class Inventory(MongoModel):
 
     @staticmethod
     def create(areas, inventorydate, method, visibility="", method_info="",
-               attachments=False, name="", email="", phone="", more_info=""):
+               attachments=False, name="", email="", phone="", more_info="", user=None):
         inventory = Inventory(areas, inventorydate, method, visibility,
-                              method_info, attachments, name, email, phone, more_info)
+                              method_info, attachments, name, email, phone, more_info, user)
         inventory.save()
         return inventory
 
@@ -50,11 +53,17 @@ class Inventory(MongoModel):
         areas = []
         for area in self.areas:
             areas.append(area.to_json(simple=True))
+        user_json = None
+        if self.user:
+            user_json = self.user.to_json()
         return {
             'id': str(self._id),
             'areas': areas,
-            'inventorydate': str(self.inventorydate),
+            'user': user_json,
+            'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
+            'visibility': str(self.visibility),
+            'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
             'email': str(self.email),

@@ -1,11 +1,11 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import login_user, generate_token
+from services.user_service import login_user
 
 api = Namespace('login')
 
 
-@api.route('/')
+@api.route('')
 class Login(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
