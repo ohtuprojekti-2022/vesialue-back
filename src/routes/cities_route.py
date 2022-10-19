@@ -15,7 +15,7 @@ class GetCity(Resource):
         params = dict(
             latitude = args['latitude'],
             longitude = args['longitude'],
-            localityLanguage = 'en',
+            localityLanguage = 'fi',
             key = BIG_DATA_API_KEY
         )
         url = 'https://api.bigdatacloud.net/data/reverse-geocode'
