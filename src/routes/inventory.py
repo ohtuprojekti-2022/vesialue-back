@@ -10,7 +10,7 @@ from utils.config import SECRET_KEY
 api = Namespace('inventory')
 
 
-@api.route('/')
+@api.route('')
 class AddInventory(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
@@ -32,13 +32,13 @@ class AddInventory(Resource):
     def get(self):
         return inventory_service.get_all_inventories(), 200
 
-@api.route('/<string:report_id>/')
+@api.route('/<string:report_id>')
 class GetInventory(Resource):
     def get(self, report_id):
         inventory = inventory_service.get_inventory(report_id)
         return inventory, 200
 
-@api.route('/areas/')
+@api.route('/areas')
 class GetAreas(Resource):
     def get(self):
         return inventory_service.get_areas(), 200

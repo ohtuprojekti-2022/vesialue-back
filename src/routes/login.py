@@ -5,7 +5,7 @@ from services.user_service import login_user
 api = Namespace('login')
 
 
-@api.route('/')
+@api.route('')
 class Login(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')

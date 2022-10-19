@@ -1,5 +1,5 @@
 from flask_restx import Api
-from .inventory_route import api as inventory_api
+from .inventory import api as inventory_api
 from .register import api as register_api
 from .login import api as login_api
 from .cities import api as cities_api
