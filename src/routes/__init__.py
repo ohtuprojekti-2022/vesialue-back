@@ -1,8 +1,8 @@
 from flask_restx import Api
-from .inventory import api as inventory_api
-from .register import api as register_api
-from .login import api as login_api
-from .cities import api as cities_api
+from .inventory_route import api as inventory_api
+from .register_route import api as register_api
+from .login_route import api as login_api
+from .cities_route import api as cities_api
 
 api=Api(
     title='Api for Vesialueen inventointi-ilmoitus'
