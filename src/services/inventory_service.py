@@ -22,7 +22,8 @@ class InventoryService:
         self.validate_coordinates(data['areas'])
         self.validate_inventorydate(data['inventorydate'])
         self.validate_method(data['method'])
-        self.validate_email(data['email'])
+        self.validate_email(
+            data['email']) if user == None else self.validate_email(user.email)
 
         inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
@@ -100,5 +101,6 @@ class InventoryService:
             inventories.append(item.to_json())
 
         return inventories
+
 
 inventory_service = InventoryService()
