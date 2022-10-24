@@ -39,6 +39,9 @@ def create_user(data):
     if len(username) < 3:
         raise BadRequest(description='username too short')
 
+    if len(username) > 32:
+        raise BadRequest(description='username too long')
+
     if user_exists_by_field("username", username):
         raise BadRequest(description='username taken')
 
