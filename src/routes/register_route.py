@@ -4,7 +4,7 @@ from services.user_service import create_user, login_user
 
 api = Namespace('register')
 
-@api.route('/')
+@api.route('')
 class Register(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
