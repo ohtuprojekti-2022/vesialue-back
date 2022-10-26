@@ -73,3 +73,10 @@ def login_user(username, password):
         raise BadRequest(description='incorrect username or password')
     user = user.to_json()
     return {'auth': generate_token(user), 'user': user}
+
+def set_admin(username, admin_level):
+    user = User.objects.raw({'username': {'$eq': username}}).first()
+    user.set_admin(admin_level)
+    user_json = user.to_json()
+    response = {'auth': generate_token(user_json), 'user': user_json}
+    return response

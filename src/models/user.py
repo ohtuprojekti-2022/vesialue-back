@@ -9,6 +9,7 @@ class User(MongoModel):
     name = fields.CharField(blank=True)
     email = fields.CharField()
     phone = fields.CharField(blank=True)
+    admin = fields.IntegerField(required=True, default=0)
 
     class Meta:
         '''Defines MongoDB options for this model'''
@@ -18,9 +19,13 @@ class User(MongoModel):
     @staticmethod
     def create(username, password, name, email, phone):
         user = User(username, generate_password_hash(
-            password), name, email, phone)
+            password), name, email, phone, admin=False)
         user.save()
         return user
+
+    def set_admin(self, admin_level):
+        self.admin = admin_level
+        self.save()
 
     def to_json(self):
         return {
@@ -28,5 +33,6 @@ class User(MongoModel):
             'name': self.name,
             'email': self.email,
             'phone': self.phone,
-            'username': self.username
+            'username': self.username,
+            'admin': str(self.admin)
         }
