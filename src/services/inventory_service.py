@@ -25,18 +25,12 @@ class InventoryService:
         self.validate_email(
             data['email']) if user == None else self.validate_email(user.email)
 
-        inventory = Inventory.create(areas=[], inventorydate=data['inventorydate'],
+        inventory = Inventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
-
-        areas = []
-        for area_coordinates in data['areas']:
-            areas.append(Area.create(inventory, area_coordinates))
-
-        inventory = Inventory.update_areas(inventory, new_areas=areas)
         return inventory.to_json()
 
     def get_inventory(self, inventory_id):
