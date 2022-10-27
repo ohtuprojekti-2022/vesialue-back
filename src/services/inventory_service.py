@@ -31,7 +31,7 @@ class InventoryService:
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
-        return inventory.to_json()
+        return inventory
 
     def get_inventory(self, inventory_id):
         # pylint: disable=no-member
