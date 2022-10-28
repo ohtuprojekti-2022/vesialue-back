@@ -1,6 +1,23 @@
-from pymodm import MongoModel, fields, ReferenceField
+from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField
 from models.area import Area
 from models.user import User
+
+
+class AreaReference(EmbeddedMongoModel):
+    area = fields.ReferenceField('Area')
+
+    class Meta:
+        connection_alias = 'app'
+        final = True
+
+    @staticmethod
+    def create(area):
+        return AreaReference(area._id)
+
+    def to_json(self):
+        return {
+            'area': str(self.area._id)
+        }
 
 
 class Inventory(MongoModel):
@@ -20,7 +37,7 @@ class Inventory(MongoModel):
     """
 
     _id = fields.ObjectId()
-    areas = fields.EmbeddedDocumentListField(Area, blank=True)
+    areas = fields.EmbeddedDocumentListField(AreaReference, blank=True)
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
     visibility = fields.CharField(blank=True)
@@ -37,28 +54,38 @@ class Inventory(MongoModel):
         final = True
 
     @staticmethod
-    def create(areas, inventorydate, method, visibility="", method_info="",
+    def create(coordinates, inventorydate, method, visibility="", method_info="",
                attachments=False, name="", email="", phone="", more_info="", user=None):
-        inventory = Inventory(areas, inventorydate, method, visibility,
+        inventory = Inventory([], inventorydate, method, visibility,
                               method_info, attachments, name, email, phone, more_info, user)
         inventory.save()
-        return inventory
+
+        area_refs = []
+        areas = []
+        for area_coordinates in coordinates:
+            new_area = Area.create(inventory, area_coordinates)
+            area_refs.append(AreaReference.create(new_area))
+            areas.append(new_area.to_json())
+
+        inventory = Inventory.update_areas(inventory, area_refs)
+
+        return [inventory.to_json(), areas]
 
     @staticmethod
-    def update_areas(inventory, new_areas):
-        inventory.areas = new_areas
+    def update_areas(inventory, new_area_refs):
+        inventory.areas = new_area_refs
         return inventory.save()
 
     def to_json(self):
-        areas = []
-        for area in self.areas:
-            areas.append(area.to_json(simple=True))
+        area_refs = []
+        for area_ref in self.areas:
+            area_refs.append(area_ref.to_json())
         user_json = None
         if self.user:
             user_json = self.user.to_json()
         return {
             'id': str(self._id),
-            'areas': areas,
+            'areas': area_refs,
             'user': user_json,
             'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
