@@ -31,20 +31,20 @@ class TestInventory(unittest.TestCase):
                                      name="",
                                      email="",
                                      phone="",
-                                     more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+                                     more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")[0]
 
-        assert re.match(r'[0-9a-f]{24}', inventory.to_json()['areas'][0]['area'])
-        self.assertEqual(inventory.user, self.user)
-        self.assertEqual(inventory.inventorydate, datetime.datetime(1988, 3, 12, 0, 0))
-        self.assertEqual(inventory.method, "dive")
-        self.assertEqual(inventory.visibility, "normal")
-        self.assertEqual(inventory.method_info, "")
-        self.assertEqual(inventory.attachments, True)
-        self.assertEqual(inventory.name, "")
-        self.assertEqual(inventory.email, "")
-        self.assertEqual(inventory.phone, "")
+        assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
+        self.assertEqual(inventory['user'], self.user.to_json())
+        self.assertEqual(inventory['inventorydate'], '1988-03-12')
+        self.assertEqual(inventory['method'], "dive")
+        self.assertEqual(inventory['visibility'], "normal")
+        self.assertEqual(inventory['methodInfo'], "")
+        self.assertEqual(inventory['attachments'], True)
+        self.assertEqual(inventory['name'], "")
+        self.assertEqual(inventory['email'], "")
+        self.assertEqual(inventory['phone'], "")
         self.assertEqual(
-            inventory.more_info, "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+            inventory['moreInfo'], "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
 
     def test_create_inventory_without_user(self):
         inventory = Inventory.create(COORDINATES,
@@ -57,48 +57,16 @@ class TestInventory(unittest.TestCase):
                              name="Matti Mattinen",
                              email="matti@sposti.fi",
                              phone="050556677",
-                             more_info="Ei ole..")
+                             more_info="Ei ole..")[0]
 
-        assert re.match(r'[0-9a-f]{24}', inventory.to_json()['areas'][0]['area'])
-        self.assertEqual(inventory.user, None)
-        self.assertEqual(inventory.inventorydate, datetime.datetime(1987, 3, 12, 0, 0))
-        self.assertEqual(inventory.method, "dive")
-        self.assertEqual(inventory.visibility, "normal")
-        self.assertEqual(inventory.method_info, "")
-        self.assertEqual(inventory.attachments, False)
-        self.assertEqual(inventory.name, "Matti Mattinen")
-        self.assertEqual(inventory.email, "matti@sposti.fi")
-        self.assertEqual(inventory.phone, "050556677")
-        self.assertEqual(inventory.more_info, "Ei ole..")
-
-    def test_to_json(self):
-        inventory = Inventory.create(COORDINATES,
-        							 user=self.user,
-        							 inventorydate="1966-03-12",
-                                     method="dive",
-                                     visibility="normal",
-                                     method_info="",
-                                     attachments=True,
-                                     name="",
-                                     email="",
-                                     phone="",
-                                     more_info="Vesi oli kylmää.")
-
-        inventory_json = inventory.to_json()
-        self.maxDiff=None
-        self.assertEqual(inventory_json,
-                         {'id': str(inventory._id),
-                          'areas': [{
-                              'area': inventory_json['areas'][0]['area']
-                          }],
-                          'attachments': True,
-                          'inventorydate': '1966-03-12',
-                          'method': 'dive',
-                          'methodInfo': '',
-                          'moreInfo' : 'Vesi oli kylmää.',
-                          'name': '',
-                          'email': '',
-                          'phone': '',
-                          'user': self.user.to_json(),
-                          'visibility': 'normal'
-        })
+        assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
+        self.assertEqual(inventory['user'], None)
+        self.assertEqual(inventory['inventorydate'], '1987-03-12')
+        self.assertEqual(inventory['method'], "dive")
+        self.assertEqual(inventory['visibility'], "normal")
+        self.assertEqual(inventory['methodInfo'], "")
+        self.assertEqual(inventory['attachments'], False)
+        self.assertEqual(inventory['name'], "Matti Mattinen")
+        self.assertEqual(inventory['email'], "matti@sposti.fi")
+        self.assertEqual(inventory['phone'], "050556677")
+        self.assertEqual(inventory['moreInfo'], "Ei ole..")
