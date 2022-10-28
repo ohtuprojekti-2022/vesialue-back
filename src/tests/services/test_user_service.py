@@ -20,7 +20,7 @@ class TestUserService(unittest.TestCase):
                         "password":"lyhyt",
                         "name":"Lyhytsana Testaaja",
                         "email":"testiposti@gmail.com",
-                        "phone":"19283234677"})
+                        "phone":"0458384950"})
 
     def test_create_user_email_not_valid(self):
         with pytest.raises(BadRequest):
@@ -28,7 +28,7 @@ class TestUserService(unittest.TestCase):
                         "password":"salainensana",
                         "name":"Posti Testaaja",
                         "email":"huonosposti",
-                        "phone":"102938475"})
+                        "phone":"+358504332221"})
 
     def test_create_user_username_too_short(self):
         with pytest.raises(BadRequest):
@@ -36,48 +36,79 @@ class TestUserService(unittest.TestCase):
                         "password":"salainensana",
                         "name":"Lyhytnimi Testaaja",
                         "email":"testiposti@gmail.com",
-                        "phone":"32198700"})
+                        "phone":"+358503445552"})
+
+    def test_create_user_username_too_long(self):
+        with pytest.raises(BadRequest):
+            create_user({"username":"aivantajuttomanpitkäkäyttäjänimieihäntällaisiasaisiollakaan",
+                        "password":"salainensalasana",
+                        "name":"Pitkänimi Testaaja",
+                        "email":"testiposti@gmail.com",
+                        "phone":"0458380050"})
 
     def test_create_user_username_taken(self):
         create_user({"username":"taken_username",
                     "password":"salainensana",
                     "name":"Teppo Testaaja",
                     "email":"testiposti@gmail.com",
-                    "phone":"32198700"})
+                    "phone":"+358407358893"})
 
         with pytest.raises(BadRequest):
             create_user({"username":"taken_username",
                         "password":"salainensana",
                         "name":"Teppo Testaaja",
                         "email":"testiposti@gmail.com",
-                        "phone":"32198700"})
+                        "phone":"+358407358893"})
 
     def test_create_user_email_taken(self):
         create_user({"username":"emailtest2",
                     "password":"salainensana",
                     "name":"Teppo Testaaja",
                     "email":"emailtaken@gmail.com",
-                    "phone":"32198700"})
+                    "phone":"+3584589990"})
 
         with pytest.raises(BadRequest):
             create_user({"username":"otheruser",
                         "password":"salainensana",
                         "name":"Teppo Testuser",
                         "email":"emailtaken@gmail.com",
-                        "phone":"32198700"})
+                        "phone":"+3584589990"})
 
     def test_create_user_success(self):
         user = create_user({"username":"testaaja",
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
-                "phone":"32198700"})
+                "phone":"+358458594647"})
 
         self.assertEqual(user, {
             'id': str(user["id"]) or None,
             'name': "Teppo Testaaja",
             'email': "testiposti@gmail.com",
-            'phone': "32198700",
+            'phone': "+358458594647",
+            'username': "testaaja"
+            })
+
+    def test_create_user_invalid_phone_number(self):
+        with pytest.raises(BadRequest):
+            create_user({"username":"userperson214",
+                        "password":"salainensana",
+                        "name":"Testi Testaaja",
+                        "email":"testiposti@gmail.com",
+                        "phone":"123"})
+
+    def test_create_user_empty_phone_number(self):
+        user = create_user({"username":"testaaja",
+                "password":"salainensana",
+                "name":"Teppo Testaaja",
+                "email":"testiposti@gmail.com",
+                "phone":""})
+
+        self.assertEqual(user, {
+            'id': str(user["id"]) or None,
+            'name': "Teppo Testaaja",
+            'email': "testiposti@gmail.com",
+            'phone': "",
             'username': "testaaja"
             })
 
@@ -86,12 +117,12 @@ class TestUserService(unittest.TestCase):
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
-                "phone":"32198700"})
+                "phone":"0508576839"})
         create_user({"username":"testaaja2",
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
                 "email":"testiposti2@gmail.com",
-                "phone":"32198700"})
+                "phone":"0508576839"})
         users = test_tools.get_all_users()
         self.assertEqual(len(list(users)), 2)
 
@@ -100,7 +131,7 @@ class TestUserService(unittest.TestCase):
                 "password":"salainensana",
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
-                "phone":"32198700"})
+                "phone":"+358507338475"})
         token = generate_token(user)
         self.assertEqual(jwt.decode(token, SECRET_KEY, algorithms=["HS256"]), {'user_id': user['id']})
 
@@ -126,7 +157,7 @@ class TestUserService(unittest.TestCase):
             "password":"salainensana",
             "name":"Teppo Testaaja",
             "email":"testiposti@gmail.com",
-            "phone":"32198700"})
+            "phone":"+358452878939"})
 
         with pytest.raises(BadRequest):
             login_user("testaaja", "vääräsalasana")
@@ -136,7 +167,7 @@ class TestUserService(unittest.TestCase):
             "password":"salainensana",
             "name":"Teppo Testaaja",
             "email":"testiposti@gmail.com",
-            "phone":"32198700"})
+            "phone":"0407384950"})
         token = generate_token(createduser)
 
         loggeduser = login_user("testaaja", "salainensana")

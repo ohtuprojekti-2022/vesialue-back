@@ -22,7 +22,7 @@ class TestInventoryService(unittest.TestCase):
                                 password="sanasala123?",
                                 name="Hanna Hannala",
                                 email="hanna@sposti.fi",
-                                phone="055223344")
+                                phone="")
 
     def test_add_inventory(self):
         inventory = self.ins.add_inventory(TEST_REPORTS[0], None)
@@ -108,6 +108,13 @@ class TestInventoryService(unittest.TestCase):
             self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid email.')
 
+    def test_add_inventory_invalid_phone(self):
+        with pytest.raises(BadRequest) as excinfo:
+            invalid_report = deepcopy(TEST_REPORTS[0])
+            invalid_report['phone'] = 'numero'
+            self.ins.add_inventory(invalid_report, None)
+        self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid phone number.')
+
     def test_create_multiple_inventory_reports_with_valid_info(self):
         self.ins.add_inventory(TEST_REPORTS[0], None)
         self.ins.add_inventory(TEST_REPORTS[1], None)
@@ -155,3 +162,4 @@ class TestInventoryService(unittest.TestCase):
         inventories = self.ins.get_all_inventories()
 
         self.assertEqual(inventories, [])
+
