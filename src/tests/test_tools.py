@@ -8,7 +8,7 @@ USERS = [{
 	"password": "sanasala123?",
 	"name": "Hanna Hannala",
 	"email": "hanna@sposti.fi",
-	"phone": "055223344",
+	"phone": "+358457385576",
 	"admin": "0"
 }]
 
@@ -25,7 +25,7 @@ TEST_REPORTS = [{
     "attachments": False,
     "name": "Anna Annala",
     "email": "anna@hotmail.fi",
-    "phone": "09 111222333",
+    "phone": "0457387750",
     "moreInfo": "Hylyn näin, kun ohi kävelin."
 },
     {
@@ -37,7 +37,7 @@ TEST_REPORTS = [{
     "attachments": True,
     "name": "Maija Maijala",
     "email": "hot_mail@hotmail.fi",
-    "phone": "0449996666",
+    "phone": "0458669978",
     "moreInfo": "Ei lisättävää."
 },
     {

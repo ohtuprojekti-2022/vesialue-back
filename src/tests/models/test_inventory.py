@@ -1,4 +1,5 @@
 import unittest
+import re
 import datetime
 import tests.test_tools as test_tools
 from models.area import Area
@@ -20,7 +21,7 @@ class TestInventory(unittest.TestCase):
                     phone="040777888999")
 
     def test_create_inventory_with_user(self):
-        inventory = Inventory.create(areas=[],
+        inventory = Inventory.create(COORDINATES,
         							 user=self.user,
         							 inventorydate="1988-03-12",
                                      method="dive",
@@ -30,29 +31,23 @@ class TestInventory(unittest.TestCase):
                                      name="",
                                      email="",
                                      phone="",
-                                     more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+                                     more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")[0]
 
-        areas = []
-        for area_coordinates in COORDINATES:
-            areas.append(Area.create(inventory, area_coordinates))
-
-        inventory = Inventory.update_areas(inventory, new_areas=areas)
-
-        self.assertEqual(inventory.areas, areas)
-        self.assertEqual(inventory.user, self.user)
-        self.assertEqual(inventory.inventorydate, datetime.datetime(1988, 3, 12, 0, 0))
-        self.assertEqual(inventory.method, "dive")
-        self.assertEqual(inventory.visibility, "normal")
-        self.assertEqual(inventory.method_info, "")
-        self.assertEqual(inventory.attachments, True)
-        self.assertEqual(inventory.name, "")
-        self.assertEqual(inventory.email, "")
-        self.assertEqual(inventory.phone, "")
+        assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
+        self.assertEqual(inventory['user'], self.user.to_json())
+        self.assertEqual(inventory['inventorydate'], '1988-03-12')
+        self.assertEqual(inventory['method'], "dive")
+        self.assertEqual(inventory['visibility'], "normal")
+        self.assertEqual(inventory['methodInfo'], "")
+        self.assertEqual(inventory['attachments'], True)
+        self.assertEqual(inventory['name'], "")
+        self.assertEqual(inventory['email'], "")
+        self.assertEqual(inventory['phone'], "")
         self.assertEqual(
-            inventory.more_info, "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
+            inventory['moreInfo'], "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
 
     def test_create_inventory_without_user(self):
-        inventory = Inventory.create(areas=[],
+        inventory = Inventory.create(COORDINATES,
 							 user=None,
 							 inventorydate="1987-03-12",
                              method="dive",
@@ -62,59 +57,16 @@ class TestInventory(unittest.TestCase):
                              name="Matti Mattinen",
                              email="matti@sposti.fi",
                              phone="050556677",
-                             more_info="Ei ole..")
+                             more_info="Ei ole..")[0]
 
-        areas = []
-        for area_coordinates in COORDINATES:
-            areas.append(Area.create(inventory, area_coordinates))
-
-        inventory = Inventory.update_areas(inventory, new_areas=areas)
-
-        self.assertEqual(inventory.areas, areas)
-        self.assertEqual(inventory.user, None)
-        self.assertEqual(inventory.inventorydate, datetime.datetime(1987, 3, 12, 0, 0))
-        self.assertEqual(inventory.method, "dive")
-        self.assertEqual(inventory.visibility, "normal")
-        self.assertEqual(inventory.method_info, "")
-        self.assertEqual(inventory.attachments, False)
-        self.assertEqual(inventory.name, "Matti Mattinen")
-        self.assertEqual(inventory.email, "matti@sposti.fi")
-        self.assertEqual(inventory.phone, "050556677")
-        self.assertEqual(inventory.more_info, "Ei ole..")
-
-    def test_to_json(self):
-        inventory = Inventory.create(areas=[],
-        							 user=self.user,
-        							 inventorydate="1966-03-12",
-                                     method="dive",
-                                     visibility="normal",
-                                     method_info="",
-                                     attachments=True,
-                                     name="",
-                                     email="",
-                                     phone="",
-                                     more_info="Vesi oli kylmää.")
-        areas = []
-        for area_coordinates in COORDINATES:
-            areas.append(Area.create(inventory, area_coordinates))
-
-        inventory = Inventory.update_areas(inventory, new_areas=areas)
-
-        inventory_json = inventory.to_json()
-        self.maxDiff=None
-        self.assertEqual(inventory_json,
-                         {'id': str(inventory._id),
-                          'areas': [[{'lat': 60.17797731341533, 'lng': 1.903111488320214},
-                                    {'lat': 60.17473315099313, 'lng': -24.886286597507773},
-                                    {'lat': -70.17114712497474, 'lng': 24.899506154574706}]],
-                          'attachments': True,
-                          'inventorydate': '1966-03-12',
-                          'method': 'dive',
-                          'methodInfo': '',
-                          'moreInfo' : 'Vesi oli kylmää.',
-                          'name': '',
-                          'email': '',
-                          'phone': '',
-                          'user': self.user.to_json(),
-                          'visibility': 'normal'
-        })
+        assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
+        self.assertEqual(inventory['user'], None)
+        self.assertEqual(inventory['inventorydate'], '1987-03-12')
+        self.assertEqual(inventory['method'], "dive")
+        self.assertEqual(inventory['visibility'], "normal")
+        self.assertEqual(inventory['methodInfo'], "")
+        self.assertEqual(inventory['attachments'], False)
+        self.assertEqual(inventory['name'], "Matti Mattinen")
+        self.assertEqual(inventory['email'], "matti@sposti.fi")
+        self.assertEqual(inventory['phone'], "050556677")
+        self.assertEqual(inventory['moreInfo'], "Ei ole..")
