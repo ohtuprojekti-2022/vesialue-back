@@ -24,9 +24,9 @@ class InventoryService:
         self.validate_inventorydate(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_email(
-            data['email']) if user == None else self.validate_email(user.email)
+            data['email']) if user is None else self.validate_email(user.email)
         self.validate_phone(
-            data['phone']) if user == None else self.validate_phone(user.phone)
+            data['phone']) if user is None else self.validate_phone(user.phone)
 
         inventory = Inventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
@@ -84,7 +84,7 @@ class InventoryService:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
-    
+
     def validate_phone(self, phone):
         if phone == '':
             pass

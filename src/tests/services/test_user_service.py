@@ -92,7 +92,8 @@ class TestUserService(unittest.TestCase):
             'name': "Teppo Testaaja",
             'email': "testiposti@gmail.com",
             'phone': "+358458594647",
-            'username': "testaaja"
+            'username': "testaaja",
+            'admin': "0"
             })
 
     def test_create_user_invalid_phone_number(self):
@@ -115,7 +116,7 @@ class TestUserService(unittest.TestCase):
             'name': "Teppo Testaaja",
             'email': "testiposti@gmail.com",
             'phone': "",
-            'username': "testaaja"
+            'username': "testaaja",
             'admin': "0"
             })
 

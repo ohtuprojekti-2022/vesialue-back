@@ -19,7 +19,7 @@ class User(MongoModel):
     @staticmethod
     def create(username, password, name, email, phone):
         user = User(username, generate_password_hash(
-            password), name, email, phone, admin=False)
+            password), name, email, phone, admin=0)
         user.save()
         return user
 
