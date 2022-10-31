@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound
 from models.inventory import Inventory
+from models.edited_inventory import EditedInventory
 from models.area import Area
 
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{10,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{10,15}\}"
@@ -34,6 +35,16 @@ class InventoryService:
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
+        return inventory
+    
+    def add_edited_inventory(self, data, user):
+
+        inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
+                                     method=data['method'], visibility=data['visibility'],
+                                     method_info=data['methodInfo'],
+                                     attachments=data['attachments'],
+                                     name=data['name'], email=data['email'], phone=data['phone'],
+                                     more_info=data['moreInfo'], user=user, original_report=data['originalReport'])
         return inventory
 
     def get_inventory(self, inventory_id):
