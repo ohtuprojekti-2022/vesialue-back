@@ -8,7 +8,8 @@ USERS = [{
 	"password": "sanasala123?",
 	"name": "Hanna Hannala",
 	"email": "hanna@sposti.fi",
-	"phone": "+358457385576"
+	"phone": "+358457385576",
+	"admin": "0"
 }]
 
 COORDINATES = [[{"lat": 60.17797731341533, "lng": 1.903111488320214},

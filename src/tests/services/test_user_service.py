@@ -2,10 +2,11 @@ import unittest
 import pytest
 import jwt
 from utils.mongo import connect_to_db
-from services.user_service import create_user, generate_token, login_user
+from services.user_service import create_user, generate_token, login_user, set_admin
 from werkzeug.exceptions import BadRequest
 from utils.config import SECRET_KEY
 import tests.test_tools as test_tools
+from models.user import User
 
 BASE_URL = 'http://localhost:5000/api'
 connect_to_db()
@@ -13,6 +14,11 @@ connect_to_db()
 class TestUserService(unittest.TestCase):
     def setUp(self):
         test_tools.delete_all_users()
+        self.user = User.create(username="testi",
+                    password="salainensana",
+                    name="Mikko Mallikas",
+                    email="postimaili@gmail.com",
+                    phone="192837667")
 
     def test_create_user_password_too_short(self):
         with pytest.raises(BadRequest):
@@ -86,7 +92,8 @@ class TestUserService(unittest.TestCase):
             'name': "Teppo Testaaja",
             'email': "testiposti@gmail.com",
             'phone': "+358458594647",
-            'username': "testaaja"
+            'username': "testaaja",
+            'admin': "0"
             })
 
     def test_create_user_invalid_phone_number(self):
@@ -109,7 +116,8 @@ class TestUserService(unittest.TestCase):
             'name': "Teppo Testaaja",
             'email': "testiposti@gmail.com",
             'phone': "",
-            'username': "testaaja"
+            'username': "testaaja",
+            'admin': "0"
             })
 
     def test_create_multiple_users_with_valid_credentials(self):
@@ -124,7 +132,7 @@ class TestUserService(unittest.TestCase):
                 "email":"testiposti2@gmail.com",
                 "phone":"0508576839"})
         users = test_tools.get_all_users()
-        self.assertEqual(len(list(users)), 2)
+        self.assertEqual(len(list(users)), 3)
 
     def test_generate_token_generates_token(self):
         user = create_user({"username":"testaaja",
@@ -173,3 +181,9 @@ class TestUserService(unittest.TestCase):
         loggeduser = login_user("testaaja", "salainensana")
 
         self.assertEqual(loggeduser, {"auth": token, "user": createduser})
+
+    def test_set_admin(self):
+        self.assertEqual(self.user.admin, 0)
+        set_admin(self.user.username, 1)
+        user = User.objects.raw({'username': {'$eq': self.user.username}}).first()
+        self.assertEqual(user.admin, 1)
