@@ -1,11 +1,11 @@
 from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField
-from models.area import Area
 from models.inventory import Inventory
 from models.user import User
+from bson.objectid import ObjectId
 
 class Point(EmbeddedMongoModel):
     lat = fields.FloatField(required=True)
-    long = fields.FloatField(required=True)
+    lng = fields.FloatField(required=True)
 
     class Meta:
         connection_alias = 'app'
@@ -18,13 +18,11 @@ class Point(EmbeddedMongoModel):
     def to_json(self):
         return {
             'lat': self.lat,
-            'lng': self.long
+            'lng': self.lng
         }
 
 
 class Area(EmbeddedMongoModel):
-    _id = fields.ObjectId()
-    inventory = fields.ReferenceField('Inventory')
     coordinates = fields.EmbeddedDocumentListField(Point)
 
     class Meta:
@@ -32,12 +30,12 @@ class Area(EmbeddedMongoModel):
         final = True
 
     @staticmethod
-    def create(inventory, coordinates):
+    def create(coordinates):
         coordinate_points = []
         for lat_lng in coordinates:
             coordinate_points.append(Point.create(lat_lng))
-        area = Area(inventory, coordinates=coordinate_points)
-        return area.save()
+        area = Area(coordinates=coordinate_points)
+        return area
 
     def to_json(self, simple=False):
         coordinates = []
@@ -46,8 +44,6 @@ class Area(EmbeddedMongoModel):
         if simple:
             return coordinates
         return {
-            'id': str(self._id),
-            'inventoryId': str(self.inventory._id),
             'coordinates': coordinates
         }
 
@@ -93,19 +89,20 @@ class EditedInventory(MongoModel):
     def create(coordinates, inventorydate, method, visibility="", method_info="",
                attachments=False, name="", email="", phone="", more_info="",
                user=None, original_report=None):
+        report_obj = Inventory.objects.values().get({'_id': ObjectId(original_report)})
         inventory = EditedInventory([], inventorydate, method, visibility,
-                              method_info, attachments, name, email, phone, more_info, user, original_report)
+                              method_info, attachments, name, email, phone, more_info, user, report_obj)
         inventory.save()
 
-        area_refs = []
+
         areas = []
         for area_coordinates in coordinates:
-            new_area = Area.create(inventory, area_coordinates)
+            new_area = Area.create(area_coordinates)
             areas.append(new_area.to_json())
 
-        inventory = EditedInventory.update_areas(inventory, area_refs)
+        inventory = EditedInventory.update_areas(inventory, areas)
 
-        return [inventory.to_json(), areas]
+        return inventory.to_json()
 
     @staticmethod
     def update_areas(inventory, new_area_refs):

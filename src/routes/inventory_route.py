@@ -24,8 +24,13 @@ class AddInventory(Resource):
         inventory = inventory_service.add_inventory(data, user)
 
         return inventory, 200
+        
+    def get(self):
+        return inventory_service.get_all_inventories(), 200
 
-    def put(self):
+@api.route('/edit')
+class EditRequest(Resource):
+    def post(self):
         content_type = request.headers.get('Content-Type')
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
@@ -36,9 +41,6 @@ class AddInventory(Resource):
         inventory = inventory_service.add_edited_inventory(data, user)
 
         return inventory, 200
-        
-    def get(self):
-        return inventory_service.get_all_inventories(), 200
 
 @api.route('/<string:report_id>')
 class GetInventory(Resource):
