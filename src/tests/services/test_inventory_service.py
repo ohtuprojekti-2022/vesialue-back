@@ -49,12 +49,19 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory['phone'], TEST_REPORTS[2]['phone'])
         self.assertEqual(inventory['moreInfo'], TEST_REPORTS[2]['moreInfo'])
 
-    def test_add_inventory_invalid_date(self):
+    def test_add_inventory_invalid_date_format(self):
         with pytest.raises(BadRequest) as excinfo:
             invalid_report = deepcopy(TEST_REPORTS[0])
             invalid_report['inventorydate'] = 'asdf'
             self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid date.')
+
+    def test_add_inventory_invalid_date_date(self):
+        with pytest.raises(BadRequest) as excinfo:
+            invalid_report = deepcopy(TEST_REPORTS[0])
+            invalid_report['inventorydate'] = '3000-01-01'
+            self.ins.add_inventory(invalid_report, None)
+        self.assertEqual(str(excinfo.value), '400 Bad Request: Date cannot be in the future.')
 
     def test_add_inventory_invalid_method(self):
         with pytest.raises(BadRequest) as excinfo:

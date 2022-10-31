@@ -21,7 +21,8 @@ class InventoryService:
 
         self.validate_missing_parameters(data)
         self.validate_coordinates(data['areas'])
-        self.validate_inventorydate(data['inventorydate'])
+        self.validate_inventorydate_format(data['inventorydate'])
+        self.validate_inventorydate_date(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_method_info(data['method'], data['methodInfo'])
         self.validate_more_info(data['moreInfo'])
@@ -73,11 +74,15 @@ class InventoryService:
                 if re.fullmatch(COORDINATE_REGEX, str(point)) is None:
                     raise BadRequest(description='Invalid areas.')
 
-    def validate_inventorydate(self, inventorydate):
+    def validate_inventorydate_format(self, inventorydate):
         try:
             datetime.datetime.strptime(inventorydate, '%Y-%m-%d')
         except ValueError as error:
             raise BadRequest(description='Invalid date.') from error
+
+    def validate_inventorydate_date(self, inventorydate):
+        if datetime.datetime.strptime(inventorydate, '%Y-%m-%d') > datetime.datetime.today():
+            raise BadRequest(description='Date cannot be in the future.')
 
     def validate_method(self, method):
         if method not in ["sight", "echo", "dive", "other"]:
