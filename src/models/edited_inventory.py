@@ -22,7 +22,7 @@ class Point(EmbeddedMongoModel):
         }
 
 
-class Area(EmbeddedMongoModel):
+class EditedArea(EmbeddedMongoModel):
     coordinates = fields.EmbeddedDocumentListField(Point)
 
     class Meta:
@@ -34,7 +34,7 @@ class Area(EmbeddedMongoModel):
         coordinate_points = []
         for lat_lng in coordinates:
             coordinate_points.append(Point.create(lat_lng))
-        area = Area(coordinates=coordinate_points)
+        area = EditedArea(coordinates=coordinate_points)
         return area
 
     def to_json(self, simple=False):
@@ -68,7 +68,7 @@ class EditedInventory(MongoModel):
     """
 
     _id = fields.ObjectId()
-    areas = fields.EmbeddedDocumentListField(Area, blank=True)
+    areas = fields.EmbeddedDocumentListField(EditedArea, blank=True)
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
     visibility = fields.CharField(blank=True)
@@ -97,7 +97,7 @@ class EditedInventory(MongoModel):
 
         areas = []
         for area_coordinates in coordinates:
-            new_area = Area.create(area_coordinates)
+            new_area = EditedArea.create(area_coordinates)
             areas.append(new_area.to_json())
 
         inventory = EditedInventory.update_areas(inventory, areas)
@@ -129,5 +129,5 @@ class EditedInventory(MongoModel):
             'email': str(self.email),
             'phone': str(self.phone),
             'moreInfo': str(self.more_info),
-            'originalReport': str(self.original_report)
+            'originalReport': str(self.original_report._id)
         }
