@@ -97,14 +97,14 @@ class InventoryService:
             pass
         elif re.fullmatch(PHONE_REGEX, phone) is None:
             raise BadRequest(description='Invalid phone number.')
-    
+
     def validate_method_info(self, method, method_info):
         if method == 'other':
             if len(method_info) > 100:
                 raise BadRequest(description='Method info too long.')
             elif method_info == "":
                 raise BadRequest(description='No method info given.')
-    
+
     def validate_more_info(self, more_info):
         if len(more_info) > 500:
             raise BadRequest(description='Info too long.')
