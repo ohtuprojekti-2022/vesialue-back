@@ -11,7 +11,7 @@ PHONE_REGEX = r'^((04[0-9]{1})(\s?|-?)|050(\s?|-?)|0457(\s?|-?)|[+]?358(\s?|-?)5
 
 
 def generate_token(user):
-    return jwt.encode({'user_id': user['id']}, SECRET_KEY)
+    return jwt.encode({'user_id': user['id'], 'admin': user['admin']}, SECRET_KEY)
 
 def user_exists_by_field(field, value):
     # pylint: disable=no-member
