@@ -139,6 +139,8 @@ class InventoryService:
 
         url = 'https://api.bigdatacloud.net/data/reverse-geocode'
         response = requests.get(url=url, params=params).json()
+        if not response['city'] or not response['locality']:
+            return "Unknown location"
         if response['city'] != "":
             return f"{response['city']}, {response['locality']}"
         else:
