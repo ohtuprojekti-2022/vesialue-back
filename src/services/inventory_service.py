@@ -1,8 +1,10 @@
 import re
 import datetime
+import requests
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound
+from utils.config import BIG_DATA_API_KEY
 from models.inventory import Inventory
 from models.area import Area
 
@@ -31,8 +33,11 @@ class InventoryService:
         self.validate_phone(
             data['phone']) if user is None else self.validate_phone(user.phone)
 
+        city = self.get_city(self.get_center(data['areas']))
+
         inventory = Inventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
+                                     city=city,
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
@@ -97,17 +102,47 @@ class InventoryService:
             pass
         elif re.fullmatch(PHONE_REGEX, phone) is None:
             raise BadRequest(description='Invalid phone number.')
-    
+
     def validate_method_info(self, method, method_info):
         if method == 'other':
             if len(method_info) > 100:
                 raise BadRequest(description='Method info too long.')
             elif method_info == "":
                 raise BadRequest(description='No method info given.')
-    
+
     def validate_more_info(self, more_info):
         if len(more_info) > 500:
             raise BadRequest(description='Info too long.')
+
+    def get_center(self, coordinates):
+        max_lat = -90.0
+        min_lat = 90.0
+        max_lng = -180.0
+        min_lng = 180.0
+
+        for area in coordinates:
+            for point in area:
+                max_lat = max(point['lat'], max_lat)
+                min_lat = min(point['lat'], min_lat)
+                max_lng = max(point['lng'], max_lng)
+                min_lng = min(point['lng'], min_lng)
+
+        return ((max_lat + min_lat) / 2), ((max_lng + min_lng) / 2)
+
+    def get_city(self, center):
+        params = dict(
+            latitude=center[0],
+            longitude=center[1],
+            localityLanguage='fi',
+            key=BIG_DATA_API_KEY
+        )
+
+        url = 'https://api.bigdatacloud.net/data/reverse-geocode'
+        response = requests.get(url=url, params=params).json()
+        if response['city'] != "":
+            return f"{response['city']}, {response['locality']}"
+        else:
+            return response['locality']
 
     def get_areas(self):
         areas = []

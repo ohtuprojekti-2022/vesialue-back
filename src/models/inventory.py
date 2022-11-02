@@ -28,6 +28,7 @@ class Inventory(MongoModel):
             inventorydate: [String] Time of the inventory.
             method: [String] sight || echo || dive || other
             visibility: [String] bad || normal || good
+            city: [String] Name of city or region.
             method_info: [String] Description of method if method == other
             attachments: [boolean] True if there are attachments included.
             name: [String] The name of the submitter.
@@ -41,6 +42,7 @@ class Inventory(MongoModel):
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
     visibility = fields.CharField(blank=True)
+    city = fields.CharField(blank=True)
     method_info = fields.CharField(blank=True)
     attachments = fields.BooleanField(required=True, default=False)
     name = fields.CharField(blank=True)
@@ -54,9 +56,9 @@ class Inventory(MongoModel):
         final = True
 
     @staticmethod
-    def create(coordinates, inventorydate, method, visibility="", method_info="",
+    def create(coordinates, inventorydate, method, visibility="", city="", method_info="",
                attachments=False, name="", email="", phone="", more_info="", user=None):
-        inventory = Inventory([], inventorydate, method, visibility,
+        inventory = Inventory([], inventorydate, method, visibility, city,
                               method_info, attachments, name, email, phone, more_info, user)
         inventory.save()
 
@@ -90,6 +92,7 @@ class Inventory(MongoModel):
             'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
             'visibility': str(self.visibility),
+            'city': str(self.city),
             'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
