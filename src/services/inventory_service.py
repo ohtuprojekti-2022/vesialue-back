@@ -38,7 +38,16 @@ class InventoryService:
         return inventory
     
     def add_edited_inventory(self, data, user):
-
+        self.validate_missing_parameters(data)
+        self.validate_coordinates(data['areas'])
+        self.validate_inventorydate(data['inventorydate'])
+        self.validate_method(data['method'])
+        self.validate_email(
+            data['email']) if user is None else self.validate_email(user.email)
+        self.validate_phone(
+            data['phone']) if user is None else self.validate_phone(user.phone)
+        self.validate_original_inventory_id(data['originalReport'])
+        
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
                                      method_info=data['methodInfo'],
@@ -57,6 +66,12 @@ class InventoryService:
 
         # pylint: enable=no-member
         return inventory.to_json()
+
+    def validate_original_inventory_id(self, id):
+        try:
+            self.get_inventory(id)
+        except:
+            raise BadRequest(description='Invalid original report id.')
 
     def validate_missing_parameters(self, data):
         properties = [

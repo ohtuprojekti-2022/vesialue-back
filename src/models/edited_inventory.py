@@ -37,12 +37,10 @@ class EditedArea(EmbeddedMongoModel):
         area = EditedArea(coordinates=coordinate_points)
         return area
 
-    def to_json(self, simple=False):
+    def to_json(self):
         coordinates = []
         for point in self.coordinates:
             coordinates.append(point.to_json())
-        if simple:
-            return coordinates
         return {
             'coordinates': coordinates
         }
