@@ -131,5 +131,11 @@ class InventoryService:
 
         return inventories
 
+    def get_all_edited_inventories(self):
+        inventories = []
+        for item in EditedInventory.objects.all():
+            inventories.append(item.to_json())
+
+        return inventories
 
 inventory_service = InventoryService()

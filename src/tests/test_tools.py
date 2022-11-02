@@ -92,6 +92,5 @@ def delete_all_inventories():
 def delete_all_edited_inventories():
     try:
         EditedInventory.objects.all().delete()
-        Area.objects.all().delete()
     except:
         pass
