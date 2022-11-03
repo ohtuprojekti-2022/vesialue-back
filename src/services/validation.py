@@ -1,6 +1,6 @@
 import re
 import datetime
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest
 
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{10,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{10,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
@@ -46,14 +46,14 @@ class Validation:
     def validate_phone(self, phone):
         if phone == '':
             pass
-        elif re.fullmatch(PHONE_REGEX, phone) is None:
+        if re.fullmatch(PHONE_REGEX, phone) is None:
             raise BadRequest(description='Invalid phone number.')
 
     def validate_method_info(self, method, method_info):
         if method == 'other':
             if len(method_info) > 100:
                 raise BadRequest(description='Method info too long.')
-            elif method_info == "":
+            if method_info == "":
                 raise BadRequest(description='No method info given.')
 
     def validate_more_info(self, more_info):

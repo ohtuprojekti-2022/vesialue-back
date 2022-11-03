@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Namespace, Resource, reqparse
+from flask_restx import Namespace, Resource
 import requests as req
 from utils.config import BIG_DATA_API_KEY
 
