@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash
 from pymodm import errors
 from models.user import User
 from utils.config import SECRET_KEY
+from bson.objectid import ObjectId
 
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
 PHONE_REGEX = r'^((04[0-9]{1})(\s?|-?)|050(\s?|-?)|0457(\s?|-?)|[+]?358(\s?|-?)50|0358(\s?|-?)50|00358(\s?|-?)50|[+]?358(\s?|-?)4[0-9]{1}|0358(\s?|-?)4[0-9]{1}|00358(\s?|-?)4[0-9]{1})(\s?|-?)(([0-9]{3,4})(\s|\-)?[0-9]{1,4})$'
@@ -86,3 +87,11 @@ def set_admin(username, admin_level):
     user_json = user.to_json()
     response = {'auth': generate_token(user_json), 'user': user_json}
     return response
+
+def check_authorization(headers):
+    if 'Authorization' in headers:
+        token = str.replace(str(headers['Authorization']), 'Bearer ', '')
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        if not decoded_token['user_id']:
+            raise BadRequest(description='Authorization token missing or invalid')
+        return User.objects.get({'_id': ObjectId(decoded_token['user_id'])})
