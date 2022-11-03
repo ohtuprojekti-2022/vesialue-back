@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import login_user
+from services.user_service import user_service
 
 api = Namespace('login')
 
@@ -11,4 +11,4 @@ class Login(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
-        return login_user(data['username'], data['password']), 200
+        return user_service.login_user(data['username'], data['password']), 200

@@ -1,88 +1,94 @@
-import re
 import jwt
 from werkzeug.exceptions import BadRequest
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from pymodm import errors
 from models.user import User
+from services.validation import validation
 from utils.config import SECRET_KEY
 
-EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
-PHONE_REGEX = r'^((04[0-9]{1})(\s?|-?)|050(\s?|-?)|0457(\s?|-?)|[+]?358(\s?|-?)50|0358(\s?|-?)50|00358(\s?|-?)50|[+]?358(\s?|-?)4[0-9]{1}|0358(\s?|-?)4[0-9]{1}|00358(\s?|-?)4[0-9]{1})(\s?|-?)(([0-9]{3,4})(\s|\-)?[0-9]{1,4})$'
 
+class UserService:
+    """ Class responsible for user logic."""
 
-def generate_token(user):
-    return jwt.encode({'user_id': user['id']}, SECRET_KEY)
+    def __init__(self):
+        """ Class constructor. Creates a new user service."""
 
-def user_exists_by_field(field, value):
-    # pylint: disable=no-member
-    try:
-        User.objects.raw({
-            field: {'$eq': value}
-        }).first()
-    except (errors.DoesNotExist, errors.ModelDoesNotExist):
-        return False
-    return True
-    # pylint: enable=no-member
+    def create_user(self, data):
+        password = data['password']
+        name = data['name']
+        email = data['email']
+        phone = data['phone']
+        username = data['username']
 
-def create_user(data):
-    password = data['password']
-    if len(password) < 10:
-        raise BadRequest(description='password too short')
+        validation.validate_password(password)
+        validation.validate_email(email)
+        validation.validate_phone(phone)
+        validation.validate_username(username)
 
-    email = data['email']
-    if re.fullmatch(EMAIL_REGEX, email) is None:
-        raise BadRequest(description='email is not valid')
+        if self.user_exists_by_field("username", username):
+            raise BadRequest(description='Username already exists.')
+        if self.user_exists_by_field("email", email):
+            raise BadRequest(description='Email already exists.')
 
-    phone = data['phone']
-    if phone == '':
-        pass
-    elif re.fullmatch(PHONE_REGEX, phone) is None:
-        raise BadRequest(description='phone number is not valid')
+        user = User.create(username=username, password=password,
+                               name=name, email=email, phone=phone)
 
-    name = data['name']
+        return user.to_json()
 
-    username = data['username']
-    if len(username) < 3:
-        raise BadRequest(description='username too short')
+    def login_user(self, username, password):
+        # Username and password length validation
+        if len(username) > 32 or len(username) < 3 or len(password) < 10 or len(password) > 128:
+            raise BadRequest(description='Invalid username or password.')
 
-    if len(username) > 32:
-        raise BadRequest(description='username too long')
+        # Check if user exists in the database
+        try:
+            user = User.objects.raw({
+                'username': {'$eq': username}
+            }).first()
+        except (errors.DoesNotExist, errors.ModelDoesNotExist) as error:
+            raise BadRequest(description='Invalid username or password.') from error
 
-    if user_exists_by_field("username", username):
-        raise BadRequest(description='username taken')
+        # Validate user password hash
+        if not check_password_hash(user.password, password):
+            raise BadRequest(description='Invalid username or password.')
+        user_json = user.to_json()
 
-    if user_exists_by_field("email", email):
-        raise BadRequest(description='email taken')
+        return {'auth': self.generate_token(user_json), 'user': user_json}
 
-    user = User.create(username=username, password=password,
-                           name=name, email=email, phone=phone)
-    return user.to_json()
+    def set_admin(self, username, admin_level):
+        user = User.objects.raw({'username': {'$eq': username}}).first()
+        user.set_admin(admin_level)
+        user_json = user.to_json()
+        return {'auth': self.generate_token(user_json), 'user': user_json}
 
+    def edit(self, user_data):
+        validation.validate_password(user_data['password'])
+        validation.validate_email(user_data['email'])
+        validation.validate_phone(user_data['phone'])
 
-def login_user(username, password):
-    # Username and password length validation
-    if len(username) > 32 or len(username) < 3 or len(password) < 10 or len(password) > 128:
-        raise BadRequest(description='incorrect username or password')
+        password_hash = generate_password_hash(user_data['password'])
+        username = user_data['username']
 
-    # Check if user exists in the database
-    # pylint: disable=no-member
-    try:
-        user = User.objects.raw({
-            'username': {'$eq': username}
-        }).first()
-    except (errors.DoesNotExist, errors.ModelDoesNotExist) as error:
-        raise BadRequest(description='incorrect username or password') from error
-    # pylint: enable=no-member
+        User.objects.raw({"username": username}).update({"$set": {"email": user_data['email'],
+                                                                  "phone": user_data['phone'],
+                                                                  "name": user_data['name'],
+                                                                  "password": password_hash}})
 
-    # Validate user password hash
-    if not check_password_hash(user.password, password):
-        raise BadRequest(description='incorrect username or password')
-    user = user.to_json()
-    return {'auth': generate_token(user), 'user': user}
+        user = User.objects.raw({'username': {'$eq': username}}).first()
+        user_json = user.to_json()
 
-def set_admin(username, admin_level):
-    user = User.objects.raw({'username': {'$eq': username}}).first()
-    user.set_admin(admin_level)
-    user_json = user.to_json()
-    response = {'auth': generate_token(user_json), 'user': user_json}
-    return response
+        return {'auth': self.generate_token(user_json), 'user': user_json}
+
+    def generate_token(self, user_json):
+        return jwt.encode({'user_id': user_json['id']}, SECRET_KEY)
+
+    def user_exists_by_field(self, field, value):
+        try:
+            User.objects.raw({
+                field: {'$eq': value}
+            }).first()
+        except (errors.DoesNotExist, errors.ModelDoesNotExist):
+            return False
+        return True
+
+user_service = UserService()
