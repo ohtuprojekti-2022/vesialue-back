@@ -44,9 +44,7 @@ class Validation:
             raise BadRequest(description='Invalid email.')
 
     def validate_phone(self, phone):
-        if phone == '':
-            pass
-        if re.fullmatch(PHONE_REGEX, phone) is None:
+        if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
             raise BadRequest(description='Invalid phone number.')
 
     def validate_method_info(self, method, method_info):
