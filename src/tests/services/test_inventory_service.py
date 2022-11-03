@@ -181,13 +181,13 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(edited_inventory['phone'], TEST_REPORTS[2]['phone'])
         self.assertEqual(edited_inventory['moreInfo'], TEST_REPORTS[2]['moreInfo'])
         self.assertEqual(edited_inventory['originalReport'], original_inventory["id"])
-    
+
     def test_add_edited_inventory_with_invalid_id_raises_exception(self):
         self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
         edited_report = copy(TEST_REPORTS[2])
         edited_report["areas"] = COORDINATES_EDITED
         edited_report["originalReport"] = "od3ef"
-        
+
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Invalid original report id.')
@@ -207,6 +207,29 @@ class TestInventoryService(unittest.TestCase):
         edited_report["areas"] = COORDINATES_EDITED
         edited_report["originalReport"] = original_inventory["id"]
         self.ins.add_edited_inventory(edited_report, self.user)
-        
+
         edited_inventories = self.ins.get_all_edited_inventories()
         self.assertEqual(1, len(edited_inventories))
+
+    def test_get_edited_inventory_invalid_id(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        self.ins.add_edited_inventory(edited_report, self.user)
+    
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_edited_inventory("asdf")
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
+    def test_get_edited_inventory_valid_id(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+
+        inv_id = edited_inventory['id']
+
+        search = self.ins.get_edited_inventory(inv_id)
+        self.assertEqual(search, edited_inventory)

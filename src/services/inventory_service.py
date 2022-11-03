@@ -36,7 +36,7 @@ class InventoryService:
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
         return inventory
-    
+
     def add_edited_inventory(self, data, user):
         self.validate_missing_parameters(data)
         self.validate_coordinates(data['areas'])
@@ -62,6 +62,17 @@ class InventoryService:
         try:
             inventory = Inventory.objects.get({'_id': ObjectId(inventory_id)})
         except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+        # pylint: enable=no-member
+        return inventory.to_json()
+
+    def get_edited_inventory(self, inventory_id):
+        # pylint: disable=no-member
+        inventory = None
+        try:
+            inventory = EditedInventory.objects.get({'_id': ObjectId(inventory_id)})
+        except (EditedInventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
         # pylint: enable=no-member

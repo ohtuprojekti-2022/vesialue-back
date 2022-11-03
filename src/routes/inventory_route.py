@@ -42,6 +42,15 @@ class EditRequest(Resource):
 
         return inventory, 200
 
+    def get(self):
+        return inventory_service.get_all_edited_inventories(), 200
+
+@api.route('/edit/<string:report_id>')
+class GetEdited(Resource):
+    def get(self, report_id):
+        inventory = inventory_service.get_edited_inventory(report_id)
+        return inventory, 200
+
 @api.route('/<string:report_id>')
 class GetInventory(Resource):
     def get(self, report_id):
