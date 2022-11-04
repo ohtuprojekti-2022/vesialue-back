@@ -1,14 +1,14 @@
 from flask import request
 from flask_restx import Namespace, Resource
-from services.user_service import login_user
+from services.user_service import set_admin
 
-api = Namespace('login')
+api = Namespace('admin')
 
 @api.route('')
-class Login(Resource):
+class SetAdmin(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
-        return login_user(data['username'], data['password']), 200
+        return set_admin(data['username'], data['admin_value']), 200
