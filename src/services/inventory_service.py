@@ -73,7 +73,7 @@ class InventoryService:
             raise NotFound(description='404 not found') from error
 
         # pylint: enable=no-member
-        return inventory.to_json(show_email=is_admin)
+        return inventory.to_json(hide_email=not is_admin)
 
     def get_edited_inventory(self, inventory_id):
         # pylint: disable=no-member
@@ -193,7 +193,7 @@ class InventoryService:
     def get_all_inventories(self, is_admin: bool = False):
         inventories = []
         for item in Inventory.objects.all():
-            inventories.append(item.to_json(show_email=is_admin))
+            inventories.append(item.to_json(hide_email=not is_admin))
 
         return inventories
 

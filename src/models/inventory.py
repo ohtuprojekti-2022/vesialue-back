@@ -71,14 +71,14 @@ class Inventory(MongoModel):
 
         inventory = Inventory.update_areas(inventory, area_refs)
 
-        return [inventory.to_json(), areas]
+        return [inventory.to_json(hide_email=False), areas]
 
     @staticmethod
     def update_areas(inventory, new_area_refs):
         inventory.areas = new_area_refs
         return inventory.save()
 
-    def to_json(self, show_email: bool = False):
+    def to_json(self, hide_email: bool = False):
         area_refs = []
         for area_ref in self.areas:
             area_refs.append(area_ref.to_json())
@@ -87,11 +87,11 @@ class Inventory(MongoModel):
         user_json = None
         if self.user:
             user_json = self.user.to_json()
-            if not show_email:
+            if hide_email:
                 user_json['email'] = ""
 
         # Clear the email field if needed
-        user_email = str(self.email) if show_email else ""
+        user_email = "" if hide_email else str(self.email)
 
         return {
             'id': str(self._id),
