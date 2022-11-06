@@ -49,7 +49,7 @@ class Inventory(MongoModel):
     email = fields.CharField(blank=True)
     phone = fields.CharField(blank=True)
     more_info = fields.CharField(blank=True)
-    user = ReferenceField(User, blank= True)
+    user = ReferenceField(User, blank=True)
 
     class Meta:
         connection_alias = 'app'
@@ -78,13 +78,21 @@ class Inventory(MongoModel):
         inventory.areas = new_area_refs
         return inventory.save()
 
-    def to_json(self):
+    def to_json(self, show_email: bool = False):
         area_refs = []
         for area_ref in self.areas:
             area_refs.append(area_ref.to_json())
+
+        # Check if report is made by registered user. Empty email field if needed
         user_json = None
         if self.user:
             user_json = self.user.to_json()
+            if not show_email:
+                user_json['email'] = ""
+
+        # Clear the email field if needed
+        user_email = str(self.email) if show_email else ""
+
         return {
             'id': str(self._id),
             'areas': area_refs,
@@ -96,7 +104,7 @@ class Inventory(MongoModel):
             'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
-            'email': str(self.email),
+            'email': user_email,
             'phone': str(self.phone),
             'moreInfo': str(self.more_info)
         }
