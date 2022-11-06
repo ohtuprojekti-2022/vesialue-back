@@ -88,10 +88,11 @@ def set_admin(username, admin_level):
     response = {'auth': generate_token(user_json), 'user': user_json}
     return response
 
-def check_authorization(headers):
+
+def check_authorization(headers: dict) -> User:
     if 'Authorization' in headers:
         token = str.replace(str(headers['Authorization']), 'Bearer ', '')
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        if not decoded_token['user_id']:
+        if not decoded_token['user_id'] or not decoded_token['admin']:
             raise BadRequest(description='Authorization token missing or invalid')
         return User.objects.get({'_id': ObjectId(decoded_token['user_id'])})

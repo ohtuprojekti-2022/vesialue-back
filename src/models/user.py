@@ -27,6 +27,9 @@ class User(MongoModel):
         self.admin = admin_level
         self.save()
 
+    def is_admin(self) -> bool:
+        return True if self.admin == 1 else False
+
     def to_json(self):
         return {
             'id': str(self._id),
