@@ -1,11 +1,11 @@
 import jwt
 from werkzeug.exceptions import BadRequest
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 from pymodm import errors
 from models.user import User
 from services.validation import validation
 from utils.config import SECRET_KEY
-
+from bson.objectid import ObjectId
 
 class UserService:
     """ Class responsible for user logic."""
@@ -87,5 +87,13 @@ class UserService:
         except (errors.DoesNotExist, errors.ModelDoesNotExist):
             return False
         return True
+
+    def check_authorization(self, headers):
+        if 'Authorization' in headers:
+            token = str.replace(str(headers['Authorization']), 'Bearer ', '')
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            if not decoded_token['user_id']:
+                raise BadRequest(description='Authorization token missing or invalid.')
+            return User.objects.get({'_id': ObjectId(decoded_token['user_id'])})
 
 user_service = UserService()
