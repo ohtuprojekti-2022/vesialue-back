@@ -205,8 +205,7 @@ class TestUserService(unittest.TestCase):
             })
 
         user_data = {'name': 'Mikko Mallikkaampi', 'phone': '044776655',
-                     'email': 'mallikas_uusi@gmail.com', 'username': 'mikko',
-                     'password': '7uusi7salasana7'}
+                     'email': 'mallikas_uusi@gmail.com', 'username': 'mikko'}
         us.edit(user_data)
         user = User.objects.raw({'username': {'$eq': self.user2.username}}).first()
         user_json2 = user.to_json()

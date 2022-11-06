@@ -62,17 +62,14 @@ class UserService:
         return {'auth': self.generate_token(user_json), 'user': user_json}
 
     def edit(self, user_data):
-        validation.validate_password(user_data['password'])
         validation.validate_email(user_data['email'])
         validation.validate_phone(user_data['phone'])
 
-        password_hash = generate_password_hash(user_data['password'])
         username = user_data['username']
 
         User.objects.raw({"username": username}).update({"$set": {"email": user_data['email'],
                                                                   "phone": user_data['phone'],
-                                                                  "name": user_data['name'],
-                                                                  "password": password_hash}})
+                                                                  "name": user_data['name']}})
 
         user = User.objects.raw({'username': {'$eq': username}}).first()
         user_json = user.to_json()
