@@ -64,7 +64,7 @@ class InventoryService:
                                      more_info=data['moreInfo'], user=user, original_report=data['originalReport'])
         return inventory
 
-    def get_inventory(self, inventory_id):
+    def get_inventory(self, inventory_id, is_admin: bool = False):
         # pylint: disable=no-member
         inventory = None
         try:
@@ -73,7 +73,7 @@ class InventoryService:
             raise NotFound(description='404 not found') from error
 
         # pylint: enable=no-member
-        return inventory.to_json()
+        return inventory.to_json(show_email=is_admin)
 
     def get_edited_inventory(self, inventory_id):
         # pylint: disable=no-member
@@ -190,10 +190,10 @@ class InventoryService:
 
         return areas
 
-    def get_all_inventories(self):
+    def get_all_inventories(self, is_admin: bool = False):
         inventories = []
         for item in Inventory.objects.all():
-            inventories.append(item.to_json())
+            inventories.append(item.to_json(show_email=is_admin))
 
         return inventories
 
