@@ -11,4 +11,4 @@ api=Api(
 api.add_namespace(register_api, path='/api/register')
 api.add_namespace(login_api, path='/api/login')
 api.add_namespace(inventory_api, path='/api/inventory')
-api.add_namespace(user_api, path='/api/admin')
+api.add_namespace(user_api, path='/api/user')

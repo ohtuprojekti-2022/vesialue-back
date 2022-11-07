@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-=======
-import re
-import datetime
 import requests
->>>>>>> development
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound
@@ -58,7 +53,7 @@ class InventoryService:
             validation.validate_email(user.email)
             validation.validate_phone(user.phone)
         self.validate_original_inventory_id(data['originalReport'])
-        
+
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
                                      method_info=data['methodInfo'],

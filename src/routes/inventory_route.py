@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource
 from werkzeug.exceptions import BadRequest
 from bson.objectid import ObjectId
 from services.inventory_service import inventory_service
-from services.user_service import check_authorization
+from services.user_service import user_service
 from models.user import User
 from utils.config import SECRET_KEY
 
@@ -19,12 +19,12 @@ class AddInventory(Resource):
             return {'error': 'bad request'}, 400
         data = request.get_json()
 
-        user = check_authorization(request.headers)
+        user = user_service.check_authorization(request.headers)
 
         inventory = inventory_service.add_inventory(data, user)
 
         return inventory, 200
-        
+
     def get(self):
         return inventory_service.get_all_inventories(), 200
 
@@ -36,7 +36,7 @@ class EditRequest(Resource):
             return {'error': 'bad request'}, 400
         data = request.get_json()
 
-        user = check_authorization(request.headers)
+        user = user_service.check_authorization(request.headers)
 
         inventory = inventory_service.add_edited_inventory(data, user)
 

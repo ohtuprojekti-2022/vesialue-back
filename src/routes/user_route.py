@@ -2,9 +2,9 @@ from flask import request
 from flask_restx import Namespace, Resource
 from services.user_service import user_service
 
-api = Namespace('admin')
+api = Namespace('user')
 
-@api.route('')
+@api.route('/admin')
 class SetAdmin(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
@@ -13,7 +13,7 @@ class SetAdmin(Resource):
         data = request.get_json()
         return user_service.set_admin(data['username'], data['admin_value']), 200
 
-@api.route('/modify-this')
+@api.route('/edit')
 class EditUser(Resource):
     def post(self):
         content_type = request.headers.get('Content-Type')
