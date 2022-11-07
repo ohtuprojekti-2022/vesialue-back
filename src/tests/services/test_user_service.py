@@ -145,8 +145,9 @@ class TestUserService(unittest.TestCase):
                 "name":"Teppo Testaaja",
                 "email":"testiposti@gmail.com",
                 "phone":"+358507338475"})
+
         token = us.generate_token(user)
-        self.assertEqual(jwt.decode(token, SECRET_KEY, algorithms=["HS256"]), {'user_id': user['id']})
+        self.assertEqual(jwt.decode(token, SECRET_KEY, algorithms=["HS256"]), {'user_id': user['id'], 'admin': '0'})
 
     def test_login_invalid_credential_length(self):
         with pytest.raises(BadRequest):

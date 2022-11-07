@@ -63,14 +63,14 @@ class InventoryService:
 
         return inventory
 
-    def get_inventory(self, inventory_id):
+    def get_inventory(self, inventory_id, is_admin: bool = False):
         inventory = None
         try:
             inventory = Inventory.objects.get({'_id': ObjectId(inventory_id)})
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
-        return inventory.to_json()
+        return inventory.to_json(hide_email=not is_admin)
 
     def get_edited_inventory(self, inventory_id):
         inventory = None
@@ -144,10 +144,10 @@ class InventoryService:
 
         return areas
 
-    def get_all_inventories(self):
+    def get_all_inventories(self, is_admin: bool = False):
         inventories = []
         for item in Inventory.objects.all():
-            inventories.append(item.to_json())
+            inventories.append(item.to_json(hide_email=not is_admin))
 
         return inventories
 

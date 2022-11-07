@@ -61,6 +61,13 @@ class UserService:
         user_json = user.to_json()
         return {'auth': self.generate_token(user_json), 'user': user_json}
 
+    def check_admin(self, headers: dict) -> bool:
+        token = self.get_token(headers)
+        if token is not None and token['admin'] == "1":
+            return True
+        else:
+            return False
+
     def edit(self, user_data):
         username = user_data['username']
         user = User.objects.raw({'username': {'$eq': username}}).first()
@@ -82,7 +89,7 @@ class UserService:
         return {'auth': self.generate_token(user_json), 'user': user_json}
 
     def generate_token(self, user_json):
-        return jwt.encode({'user_id': user_json['id']}, SECRET_KEY)
+        return jwt.encode({'user_id': user_json['id'], 'admin': user_json['admin']}, SECRET_KEY)
 
     def user_exists_by_field(self, field, value):
         try:
@@ -93,12 +100,17 @@ class UserService:
             return False
         return True
 
-    def check_authorization(self, headers):
+    def get_token(self, headers: dict) -> dict:
         if 'Authorization' in headers:
             token = str.replace(str(headers['Authorization']), 'Bearer ', '')
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            if not decoded_token['user_id']:
-                raise BadRequest(description='Authorization token missing or invalid.')
-            return User.objects.get({'_id': ObjectId(decoded_token['user_id'])})
+            if not decoded_token['user_id'] or not decoded_token['admin']:
+                raise BadRequest(description='Authorization token missing or invalid')
+            return decoded_token
+
+    def check_authorization(self, headers: dict) -> User:
+        token = self.get_token(headers)
+        if token is not None:
+            return User.objects.get({'_id': ObjectId(token['user_id'])})
 
 user_service = UserService()
