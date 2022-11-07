@@ -91,6 +91,7 @@ disable=print-statement,
         missing-class-docstring,
         no-self-use,
         too-few-public-methods
+generated-members=objects
 
 [FORMAT]
 	max-line-length: 110

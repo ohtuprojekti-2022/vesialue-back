@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource
 from werkzeug.exceptions import BadRequest
 from bson.objectid import ObjectId
 from services.inventory_service import inventory_service
-from services.user_service import check_authorization, check_admin
+from services.user_service import user_service
 from models.user import User
 from utils.config import SECRET_KEY
 
@@ -19,13 +19,13 @@ class AddInventory(Resource):
             return {'error': 'bad request'}, 400
 
         data = request.get_json()
-        user = check_authorization(request.headers)
+        user = user_service.check_authorization(request.headers)
         inventory = inventory_service.add_inventory(data, user)
 
         return inventory, 200
-        
+
     def get(self):
-        is_admin = check_admin(request.headers)
+        is_admin = user_service.check_admin(request.headers)
         return inventory_service.get_all_inventories(is_admin), 200
 
 @api.route('/edit')
@@ -36,7 +36,7 @@ class EditRequest(Resource):
             return {'error': 'bad request'}, 400
         data = request.get_json()
 
-        user = check_authorization(request.headers)
+        user = user_service.check_authorization(request.headers)
 
         inventory = inventory_service.add_edited_inventory(data, user)
 
@@ -54,7 +54,7 @@ class GetEdited(Resource):
 @api.route('/<string:report_id>')
 class GetInventory(Resource):
     def get(self, report_id):
-        is_admin = check_admin(request.headers)
+        is_admin = user_service.check_admin(request.headers)
         inventory = inventory_service.get_inventory(report_id, is_admin)
         return inventory, 200
 
