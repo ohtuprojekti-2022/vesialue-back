@@ -30,14 +30,15 @@ class User(MongoModel):
     def is_admin(self) -> bool:
         return True if self.admin == 1 else False
 
-    def to_json(self, hide_email: bool = False):
-        user_email = "" if hide_email else str(self.email)
+    def to_json(self, hide_personal_info: bool = False):
+        user_email = "" if hide_personal_info else str(self.email)
+        user_phone = "" if hide_personal_info else str(self.phone)
 
         return {
             'id': str(self._id),
             'name': self.name,
             'email': user_email,
-            'phone': self.phone,
+            'phone': user_phone,
             'username': self.username,
             'admin': str(self.admin)
         }
