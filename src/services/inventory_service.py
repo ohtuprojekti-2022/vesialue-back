@@ -59,7 +59,9 @@ class InventoryService:
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
-                                     more_info=data['moreInfo'], user=user, original_report=data['originalReport'])
+                                     more_info=data['moreInfo'],
+                                     user=user,
+                                     original_report=data['originalReport'])
 
         return inventory
 
@@ -129,13 +131,12 @@ class InventoryService:
         )
 
         url = 'https://api.bigdatacloud.net/data/reverse-geocode'
-        response = requests.get(url=url, params=params).json()
+        response = requests.get(url=url, params=params, timeout=10).json()
         if not response['city'] or not response['locality']:
             return "Unknown location"
         if response['city'] != "":
             return f"{response['city']}, {response['locality']}"
-        else:
-            return response['locality']
+        return response['locality']
 
     def get_areas(self):
         areas = []

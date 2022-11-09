@@ -1,12 +1,7 @@
-import jwt
 from flask import request
 from flask_restx import Namespace, Resource
-from werkzeug.exceptions import BadRequest
-from bson.objectid import ObjectId
 from services.inventory_service import inventory_service
 from services.user_service import user_service
-from models.user import User
-from utils.config import SECRET_KEY
 
 api = Namespace('inventory')
 
