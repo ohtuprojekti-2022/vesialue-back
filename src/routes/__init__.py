@@ -15,5 +15,5 @@ api.add_namespace(login_api, path='/api/login')
 api.add_namespace(inventory_api, path='/api/inventory')
 api.add_namespace(user_api, path='/api/user')
 
-if E2E_ENV or ENV == "development":
+if E2E_ENV or ENV == 'development':
     api.add_namespace(tests_api, path='/api/tests')
