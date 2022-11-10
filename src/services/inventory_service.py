@@ -23,7 +23,7 @@ class InventoryService:
 
     def add_inventory(self, data, user):
 
-        self.validate_missing_parameters(data)
+        self.validate_missing_parameters(data, False)
         self.validate_coordinates(data['areas'])
         self.validate_inventorydate_format(data['inventorydate'])
         self.validate_inventorydate_date(data['inventorydate'])
@@ -47,15 +47,11 @@ class InventoryService:
         return inventory
 
     def add_edited_inventory(self, data, user):
-        self.validate_missing_parameters(data)
+        self.validate_missing_parameters(data, True)
         self.validate_coordinates(data['areas'])
         self.validate_inventorydate_format(data['inventorydate'])
         self.validate_inventorydate_date(data['inventorydate'])
         self.validate_method(data['method'])
-        self.validate_email(
-            data['email']) if user is None else self.validate_email(user.email)
-        self.validate_phone(
-            data['phone']) if user is None else self.validate_phone(user.phone)
         self.validate_original_inventory_id(data['originalReport'])
 
         city = self.get_city(self.get_center(data['areas']))
@@ -70,8 +66,8 @@ class InventoryService:
                                      city=city,
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
-                                     name=data['name'], email=data['email'], phone=data['phone'],
-                                     more_info=data['moreInfo'], user=user, original_report=data['originalReport'])
+                                     more_info=data['moreInfo'], user=user,
+                                     original_report=data['originalReport'])
         return inventory
 
     def get_inventory(self, inventory_id):
@@ -102,7 +98,7 @@ class InventoryService:
         except:
             raise BadRequest(description='Invalid original report id.')
 
-    def validate_missing_parameters(self, data):
+    def validate_missing_parameters(self, data, edited):
         properties = [
             'areas',
             'inventorydate',
@@ -110,11 +106,10 @@ class InventoryService:
             'visibility',
             'methodInfo',
             'attachments',
-            'name',
-            'email',
-            'phone',
             'moreInfo'
         ]
+        if not edited:
+            properties += ['name', 'email', 'phone']
 
         for key in properties:
             if not key in data:
@@ -262,9 +257,6 @@ class InventoryService:
             'city': json['city'],
             'method_info': json['methodInfo'],
             'attachments': json['attachments'],
-            'name': json['name'],
-            'email': json['email'],
-            'phone': json['phone'],
             'more_info': json['moreInfo']
         }
 

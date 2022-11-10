@@ -197,15 +197,15 @@ class TestInventoryService(unittest.TestCase):
         edited_report = copy(TEST_REPORTS[2])
         edited_report["areas"] = COORDINATES_EDITED
         edited_report["originalReport"] = original_inventory["id"]
+        del(edited_report["name"])
+        del(edited_report["email"])
+        del(edited_report["phone"])
         edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(edited_inventory['areas'][0]['coordinates'], COORDINATES_EDITED[0])
         self.assertEqual(edited_inventory['user'], self.user.to_json())
         self.assertEqual(edited_inventory['inventorydate'][0:10], TEST_REPORTS[2]['inventorydate'])
         self.assertEqual(edited_inventory['method'], TEST_REPORTS[2]['method'])
         self.assertEqual(edited_inventory['attachments'], TEST_REPORTS[2]['attachments'])
-        self.assertEqual(edited_inventory['name'], TEST_REPORTS[2]['name'])
-        self.assertEqual(edited_inventory['email'], TEST_REPORTS[2]['email'])
-        self.assertEqual(edited_inventory['phone'], TEST_REPORTS[2]['phone'])
         self.assertEqual(edited_inventory['moreInfo'], TEST_REPORTS[2]['moreInfo'])
         self.assertEqual(edited_inventory['originalReport'], original_inventory["id"])
 
