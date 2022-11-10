@@ -56,7 +56,7 @@ def create_user(data):
         raise BadRequest(description='email taken')
 
     user = User.create(username=username, password=password,
-                           name=name, email=email, phone=phone)
+                       name=name, email=email, phone=phone)
     return user.to_json()
 
 
