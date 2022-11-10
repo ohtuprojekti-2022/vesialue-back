@@ -70,6 +70,7 @@ class EditedInventory(MongoModel):
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
     visibility = fields.CharField(blank=True)
+    city = fields.CharField(blank=True)
     method_info = fields.CharField(blank=True)
     attachments = fields.BooleanField(required=True, default=False)
     name = fields.CharField(blank=True)
@@ -84,11 +85,11 @@ class EditedInventory(MongoModel):
         final = True
 
     @staticmethod
-    def create(coordinates, inventorydate, method, visibility="", method_info="",
+    def create(coordinates, inventorydate, method, visibility="", city="", method_info="",
                attachments=False, name="", email="", phone="", more_info="",
                user=None, original_report=None):
         report_obj = Inventory.objects.values().get({'_id': ObjectId(original_report)})
-        inventory = EditedInventory([], inventorydate, method, visibility,
+        inventory = EditedInventory([], inventorydate, method, visibility, city,
                               method_info, attachments, name, email, phone, more_info, user, report_obj)
         inventory.save()
 
@@ -121,6 +122,7 @@ class EditedInventory(MongoModel):
             'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
             'visibility': str(self.visibility),
+            'city': str(self.city),
             'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),

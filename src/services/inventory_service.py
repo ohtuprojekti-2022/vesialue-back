@@ -9,7 +9,6 @@ from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
 from models.area import Area
 from models.user import User
-from copy import copy
 
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{10,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{10,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
@@ -50,7 +49,8 @@ class InventoryService:
     def add_edited_inventory(self, data, user):
         self.validate_missing_parameters(data)
         self.validate_coordinates(data['areas'])
-        self.validate_inventorydate(data['inventorydate'])
+        self.validate_inventorydate_format(data['inventorydate'])
+        self.validate_inventorydate_date(data['inventorydate'])
         self.validate_method(data['method'])
         self.validate_email(
             data['email']) if user is None else self.validate_email(user.email)
@@ -58,8 +58,16 @@ class InventoryService:
             data['phone']) if user is None else self.validate_phone(user.phone)
         self.validate_original_inventory_id(data['originalReport'])
         
+        city = self.get_city(self.get_center(data['areas']))
+        
+        user_id_original = self.get_inventory(data['originalReport'])['user']['id']
+        user_id_edited = str(user._id)
+        if user_id_edited != user_id_original:
+            raise BadRequest(description='Authorization error')
+        
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
+                                     city=city,
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
                                      name=data['name'], email=data['email'], phone=data['phone'],
@@ -216,7 +224,7 @@ class InventoryService:
 
         try:
             Inventory.objects.raw({'_id': ObjectId(original_inv_id)}).update({"$set":new_inv})
-            
+
         except:
             raise BadRequest(description='Invalid data')
         self.delete_edit(edit_id)
@@ -251,6 +259,7 @@ class InventoryService:
             'user': user,
             'method': json['method'],
             'visibility': json['visibility'],
+            'city': json['city'],
             'method_info': json['methodInfo'],
             'attachments': json['attachments'],
             'name': json['name'],
