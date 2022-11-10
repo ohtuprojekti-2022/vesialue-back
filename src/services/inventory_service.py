@@ -57,14 +57,14 @@ class InventoryService:
         self.validate_phone(
             data['phone']) if user is None else self.validate_phone(user.phone)
         self.validate_original_inventory_id(data['originalReport'])
-        
+
         city = self.get_city(self.get_center(data['areas']))
-        
+
         user_id_original = self.get_inventory(data['originalReport'])['user']['id']
         user_id_edited = str(user._id)
         if user_id_edited != user_id_original:
             raise BadRequest(description='Authorization error')
-        
+
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
                                      city=city,
@@ -211,12 +211,12 @@ class InventoryService:
             inventories.append(item.to_json())
 
         return inventories
-    
+
     def approve_edit(self, edit_id):
         edited_inv_json = self.get_edited_inventory(edit_id)
         original_inv_id = edited_inv_json['originalReport']
         original_inv = Inventory.objects.get({'_id': ObjectId(original_inv_id)})
-        
+
         new_inv = self.inventory_json_to_object_format(edited_inv_json)
         self.__delete_areas(original_inv_id)
         areas = Inventory.create_areas(original_inv, self.__area_json_to_list(edited_inv_json['areas']))[1]
@@ -232,10 +232,10 @@ class InventoryService:
 
     def __area_json_to_list(self, areas):
         area_list = []
-        
+
         for area in areas:
             area_list.append(area['coordinates'])
-        
+
         return area_list
 
     def __delete_areas(self, id):
@@ -254,7 +254,7 @@ class InventoryService:
         user = None
         if json['user']:
             user = User.objects.get({'_id': ObjectId(json['user']['id'])})
-        
+
         return {
             'user': user,
             'method': json['method'],
@@ -267,6 +267,5 @@ class InventoryService:
             'phone': json['phone'],
             'more_info': json['moreInfo']
         }
-
 
 inventory_service = InventoryService()
