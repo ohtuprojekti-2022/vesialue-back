@@ -38,9 +38,6 @@ class TestEditedInventory(unittest.TestCase):
                                      visibility="normal",
                                      method_info="",
                                      attachments=True,
-                                     name="",
-                                     email="",
-                                     phone="",
                                      more_info="Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.",
                                      original_report=self.inventory["id"])
         self.assertEqual(edited_inventory['areas'][0]['coordinates'], tt.COORDINATES_EDITED[0])
@@ -50,9 +47,6 @@ class TestEditedInventory(unittest.TestCase):
         self.assertEqual(edited_inventory['visibility'], "normal")
         self.assertEqual(edited_inventory['methodInfo'], "")
         self.assertEqual(edited_inventory['attachments'], True)
-        self.assertEqual(edited_inventory['name'], "")
-        self.assertEqual(edited_inventory['email'], "")
-        self.assertEqual(edited_inventory['phone'], "")
         self.assertEqual(
             edited_inventory['moreInfo'], "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtaa kuvat ulkomuistista.")
         self.assertEqual(edited_inventory['originalReport'], self.inventory["id"])

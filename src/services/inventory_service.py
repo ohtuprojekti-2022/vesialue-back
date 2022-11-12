@@ -15,7 +15,7 @@ class InventoryService:
         """ Class constructor. Creates a new inventory service."""
 
     def add_inventory(self, data, user):
-        self.validate_missing_parameters(data)
+        self.validate_missing_parameters(data, False)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
         validation.validate_inventorydate_date(data['inventorydate'])
@@ -42,23 +42,24 @@ class InventoryService:
         return inventory
 
     def add_edited_inventory(self, data, user):
-        self.validate_missing_parameters(data)
+        self.validate_missing_parameters(data, True)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_date(data['inventorydate'])
         validation.validate_method(data['method'])
-        if user is None:
-            validation.validate_email(data['email'])
-            validation.validate_phone(data['phone'])
-        else:
-            validation.validate_email(user.email)
-            validation.validate_phone(user.phone)
         self.validate_original_inventory_id(data['originalReport'])
+
+        city = self.get_city(self.get_center(data['areas']))
+
+        user_id_original = self.get_inventory(data['originalReport'])['user']['id']
+        user_id_edited = str(user._id)
+        if user_id_edited != user_id_original:
+            raise BadRequest(description='Authorization error')
 
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
+                                     city=city,
                                      method_info=data['methodInfo'],
                                      attachments=data['attachments'],
-                                     name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'],
                                      user=user,
                                      original_report=data['originalReport'])
@@ -89,7 +90,7 @@ class InventoryService:
         except:
             raise BadRequest(description='Invalid original report id.')
 
-    def validate_missing_parameters(self, data):
+    def validate_missing_parameters(self, data, edited):
         properties = [
             'areas',
             'inventorydate',
@@ -97,11 +98,10 @@ class InventoryService:
             'visibility',
             'methodInfo',
             'attachments',
-            'name',
-            'email',
-            'phone',
             'moreInfo'
         ]
+        if not edited:
+            properties += ['name', 'email', 'phone']
 
         for key in properties:
             if not key in data:
@@ -158,5 +158,54 @@ class InventoryService:
             inventories.append(item.to_json())
 
         return inventories
+
+    def approve_edit(self, edit_id):
+        edited_inv_json = self.get_edited_inventory(edit_id)
+        original_inv_id = edited_inv_json['originalReport']
+        original_inv = Inventory.objects.get({'_id': ObjectId(original_inv_id)})
+
+        new_inv = self.inventory_json_to_object_format(edited_inv_json)
+        self.__delete_areas(original_inv_id)
+        areas = Inventory.create_areas(original_inv, self.__area_json_to_list(edited_inv_json['areas']))[1]
+        Inventory.update_areas(original_inv, areas)
+
+        try:
+            Inventory.objects.raw({'_id': ObjectId(original_inv_id)}).update({"$set":new_inv})
+
+        except:
+            raise BadRequest(description='Invalid data')
+        self.delete_edit(edit_id)
+        return edited_inv_json
+
+    def __area_json_to_list(self, areas): # pragma: no cover
+        area_list = []
+
+        for area in areas:
+            area_list.append(area['coordinates'])
+
+        return area_list
+
+    def __delete_areas(self, id): # pragma: no cover
+        try:
+            Area.objects.raw({'inventory': ObjectId(id)}).delete()
+        except (Area.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+    def delete_edit(self, edit_id):
+        try:
+            EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
+        except (EditedInventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+    def inventory_json_to_object_format(self, json):
+
+        return {
+            'method': json['method'],
+            'visibility': json['visibility'],
+            'city': json['city'],
+            'method_info': json['methodInfo'],
+            'attachments': json['attachments'],
+            'more_info': json['moreInfo']
+        }
 
 inventory_service = InventoryService()

@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource
 from services.inventory_service import inventory_service
 from services.user_service import user_service
 
+
 api = Namespace('inventory')
 
 
@@ -16,6 +17,17 @@ class AddInventory(Resource):
         data = request.get_json()
         user = user_service.check_authorization(request.headers)
         inventory = inventory_service.add_inventory(data, user)
+
+        return inventory, 200
+
+    def put(self):
+        content_type = request.headers.get('Content-Type')
+        if content_type != 'application/json':
+            return {'error': 'bad request'}, 400
+        data = request.get_json()
+
+        #TODO: admin authorization
+        inventory = inventory_service.approve_edit(data['id'])
 
         return inventory, 200
 
@@ -38,13 +50,20 @@ class EditRequest(Resource):
         return inventory, 200
 
     def get(self):
+        #TODO: admin authorization
         return inventory_service.get_all_edited_inventories(), 200
 
 @api.route('/edit/<string:report_id>')
 class GetEdited(Resource):
     def get(self, report_id):
+        #TODO: admin authorization
         inventory = inventory_service.get_edited_inventory(report_id)
         return inventory, 200
+
+    def delete(self, report_id):
+        #TODO: admin authorization
+        inventory_service.delete_edit(report_id)
+        return 200
 
 @api.route('/<string:report_id>')
 class GetInventory(Resource):

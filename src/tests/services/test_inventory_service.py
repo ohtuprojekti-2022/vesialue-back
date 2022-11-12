@@ -2,7 +2,6 @@ from copy import deepcopy, copy
 import unittest
 import re
 import pytest
-import jwt
 import json
 from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
@@ -197,15 +196,15 @@ class TestInventoryService(unittest.TestCase):
         edited_report = copy(TEST_REPORTS[2])
         edited_report["areas"] = COORDINATES_EDITED
         edited_report["originalReport"] = original_inventory["id"]
+        del(edited_report["name"])
+        del(edited_report["email"])
+        del(edited_report["phone"])
         edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(edited_inventory['areas'][0]['coordinates'], COORDINATES_EDITED[0])
         self.assertEqual(edited_inventory['user'], self.user.to_json())
         self.assertEqual(edited_inventory['inventorydate'][0:10], TEST_REPORTS[2]['inventorydate'])
         self.assertEqual(edited_inventory['method'], TEST_REPORTS[2]['method'])
         self.assertEqual(edited_inventory['attachments'], TEST_REPORTS[2]['attachments'])
-        self.assertEqual(edited_inventory['name'], TEST_REPORTS[2]['name'])
-        self.assertEqual(edited_inventory['email'], TEST_REPORTS[2]['email'])
-        self.assertEqual(edited_inventory['phone'], TEST_REPORTS[2]['phone'])
         self.assertEqual(edited_inventory['moreInfo'], TEST_REPORTS[2]['moreInfo'])
         self.assertEqual(edited_inventory['originalReport'], original_inventory["id"])
 
@@ -260,3 +259,47 @@ class TestInventoryService(unittest.TestCase):
 
         search = self.ins.get_edited_inventory(inv_id)
         self.assertEqual(search, edited_inventory)
+
+    def test_approving_edited_inventory_changes_the_original(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+        inv_id = edited_inventory['id']
+        self.ins.approve_edit(inv_id)
+        
+        original_inv_changed = self.ins.get_inventory(original_inventory["id"])
+        self.assertNotEqual(original_inventory["areas"], original_inv_changed["areas"])
+
+    def test_delete_edit_deletes_from_database(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+        inv_id = edited_inventory['id']
+        self.ins.delete_edit(inv_id)
+        
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_edited_inventory(inv_id)
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+    
+    def test_delete_edit_raises_exception_when_given_invalid_is(self):
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.delete_edit('4328gh')
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
+    def test_adding_edited_inventory_with_different_user_results_in_exception(self):
+        user_b = User.create(username="mephisto",
+                                password="abrakadabra62",
+                                name="Mephistopheles",
+                                email="mephisto@sposti.fi",
+                                phone="")
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        with pytest.raises(BadRequest) as excinfo:
+            self.ins.add_edited_inventory(edited_report, user_b)
+        self.assertEqual(str(excinfo.value), '400 Bad Request: Authorization error')
