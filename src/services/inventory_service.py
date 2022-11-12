@@ -225,7 +225,7 @@ class InventoryService:
         self.delete_edit(edit_id)
         return edited_inv_json
 
-    def __area_json_to_list(self, areas):
+    def __area_json_to_list(self, areas): # pragma: no cover
         area_list = []
 
         for area in areas:
@@ -233,7 +233,7 @@ class InventoryService:
 
         return area_list
 
-    def __delete_areas(self, id):
+    def __delete_areas(self, id): # pragma: no cover
         try:
             Area.objects.raw({'inventory': ObjectId(id)}).delete()
         except (Area.DoesNotExist, InvalidId) as error:
@@ -246,12 +246,8 @@ class InventoryService:
             raise NotFound(description='404 not found') from error
 
     def inventory_json_to_object_format(self, json):
-        user = None
-        if json['user']:
-            user = User.objects.get({'_id': ObjectId(json['user']['id'])})
 
         return {
-            'user': user,
             'method': json['method'],
             'visibility': json['visibility'],
             'city': json['city'],
