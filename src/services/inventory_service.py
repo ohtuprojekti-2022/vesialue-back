@@ -1,7 +1,7 @@
 import requests
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 from utils.config import BIG_DATA_API_KEY
 from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
@@ -53,7 +53,7 @@ class InventoryService:
         user_id_original = self.get_inventory(data['originalReport'])['user']['id']
         user_id_edited = str(user._id)
         if user_id_edited != user_id_original:
-            raise BadRequest(description='Authorization error')
+            raise Unauthorized(description='Authorization error')
 
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                      method=data['method'], visibility=data['visibility'],
@@ -75,7 +75,9 @@ class InventoryService:
 
         return inventory.to_json(hide_email=not is_admin)
 
-    def get_edited_inventory(self, inventory_id):
+    def get_edited_inventory(self, inventory_id, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
         inventory = None
         try:
             inventory = EditedInventory.objects.get({'_id': ObjectId(inventory_id)})
@@ -152,15 +154,20 @@ class InventoryService:
 
         return inventories
 
-    def get_all_edited_inventories(self):
+    def get_all_edited_inventories(self, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
         inventories = []
         for item in EditedInventory.objects.all():
             inventories.append(item.to_json())
 
         return inventories
 
-    def approve_edit(self, edit_id):
-        edited_inv_json = self.get_edited_inventory(edit_id)
+    def approve_edit(self, edit_id, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+
+        edited_inv_json = self.get_edited_inventory(edit_id, is_admin)
         original_inv_id = edited_inv_json['originalReport']
         original_inv = Inventory.objects.get({'_id': ObjectId(original_inv_id)})
 
@@ -174,7 +181,7 @@ class InventoryService:
 
         except:
             raise BadRequest(description='Invalid data')
-        self.delete_edit(edit_id)
+        self.delete_edit(edit_id, is_admin)
         return edited_inv_json
 
     def __area_json_to_list(self, areas): # pragma: no cover
@@ -191,7 +198,9 @@ class InventoryService:
         except (Area.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
-    def delete_edit(self, edit_id):
+    def delete_edit(self, edit_id, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
         try:
             EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
         except (EditedInventory.DoesNotExist, InvalidId) as error:

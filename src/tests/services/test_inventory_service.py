@@ -5,7 +5,7 @@ import pytest
 import json
 from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 from tests.test_tools import COORDINATES_EDITED, TEST_REPORTS, USERS
 import tests.test_tools as test_tools
 from models.user import User
@@ -234,8 +234,13 @@ class TestInventoryService(unittest.TestCase):
         edited_report["originalReport"] = original_inventory["id"]
         self.ins.add_edited_inventory(edited_report, self.user)
 
-        edited_inventories = self.ins.get_all_edited_inventories()
+        edited_inventories = self.ins.get_all_edited_inventories(True)
         self.assertEqual(1, len(edited_inventories))
+
+    def test_get_all_edited_inventories_as_non_admin_results_in_exception(self):
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.get_all_edited_inventories(False)
+        self.assertEqual(str(excinfo.value), '401 Unauthorized: Admin only')
 
     def test_get_edited_inventory_invalid_id(self):
         original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
@@ -245,7 +250,7 @@ class TestInventoryService(unittest.TestCase):
         self.ins.add_edited_inventory(edited_report, self.user)
     
         with pytest.raises(NotFound) as excinfo:
-            self.ins.get_edited_inventory("asdf")
+            self.ins.get_edited_inventory("asdf", True)
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
 
     def test_get_edited_inventory_valid_id(self):
@@ -257,8 +262,20 @@ class TestInventoryService(unittest.TestCase):
 
         inv_id = edited_inventory['id']
 
-        search = self.ins.get_edited_inventory(inv_id)
+        search = self.ins.get_edited_inventory(inv_id, True)
         self.assertEqual(search, edited_inventory)
+
+    def test_get_edited_inventory_as_non_admin_raises_exception(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+
+        inv_id = edited_inventory['id']
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.get_edited_inventory(inv_id, False)
+        self.assertEqual(str(excinfo.value), '401 Unauthorized: Admin only')
 
     def test_approving_edited_inventory_changes_the_original(self):
         original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
@@ -267,10 +284,21 @@ class TestInventoryService(unittest.TestCase):
         edited_report["originalReport"] = original_inventory["id"]
         edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
         inv_id = edited_inventory['id']
-        self.ins.approve_edit(inv_id)
+        self.ins.approve_edit(inv_id, True)
         
         original_inv_changed = self.ins.get_inventory(original_inventory["id"])
         self.assertNotEqual(original_inventory["areas"], original_inv_changed["areas"])
+
+    def test_non_admin_approval_results_in_exception(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+        inv_id = edited_inventory['id']
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.approve_edit(inv_id)
+        self.assertEqual(str(excinfo.value), '401 Unauthorized: Admin only')
 
     def test_delete_edit_deletes_from_database(self):
         original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
@@ -279,16 +307,28 @@ class TestInventoryService(unittest.TestCase):
         edited_report["originalReport"] = original_inventory["id"]
         edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
         inv_id = edited_inventory['id']
-        self.ins.delete_edit(inv_id)
+        self.ins.delete_edit(inv_id, True)
         
         with pytest.raises(NotFound) as excinfo:
-            self.ins.get_edited_inventory(inv_id)
+            self.ins.get_edited_inventory(inv_id, True)
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
     
-    def test_delete_edit_raises_exception_when_given_invalid_is(self):
+    def test_delete_edit_raises_exception_when_given_invalid_id(self):
         with pytest.raises(NotFound) as excinfo:
-            self.ins.delete_edit('4328gh')
+            self.ins.delete_edit('4328gh', True)
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
+    def test_unauthorized_delete_edit_raises_exception(self):
+        original_inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(edited_report, self.user)
+        inv_id = edited_inventory['id']
+
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.delete_edit(inv_id, False)
+        self.assertEqual(str(excinfo.value), '401 Unauthorized: Admin only')
 
     def test_adding_edited_inventory_with_different_user_results_in_exception(self):
         user_b = User.create(username="mephisto",
@@ -300,6 +340,6 @@ class TestInventoryService(unittest.TestCase):
         edited_report = copy(TEST_REPORTS[2])
         edited_report["areas"] = COORDINATES_EDITED
         edited_report["originalReport"] = original_inventory["id"]
-        with pytest.raises(BadRequest) as excinfo:
+        with pytest.raises(Unauthorized) as excinfo:
             self.ins.add_edited_inventory(edited_report, user_b)
-        self.assertEqual(str(excinfo.value), '400 Bad Request: Authorization error')
+        self.assertEqual(str(excinfo.value), '401 Unauthorized: Authorization error')
