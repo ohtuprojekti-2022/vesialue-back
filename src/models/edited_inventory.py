@@ -69,6 +69,7 @@ class EditedInventory(MongoModel):
     areas = fields.EmbeddedDocumentListField(EditedArea, blank=True)
     inventorydate = fields.DateTimeField(required=True)
     method = fields.CharField(required=True)
+    edit_reason = fields.CharField(blank=False)
     visibility = fields.CharField(blank=True)
     city = fields.CharField(blank=True)
     method_info = fields.CharField(blank=True)
@@ -82,11 +83,11 @@ class EditedInventory(MongoModel):
         final = True
 
     @staticmethod
-    def create(coordinates, inventorydate, method, visibility="", city="", method_info="",
+    def create(coordinates, inventorydate, method, edit_reason, visibility="", city="", method_info="",
                attachments=False, more_info="",
                user=None, original_report=None):
         report_obj = Inventory.objects.values().get({'_id': ObjectId(original_report)})
-        inventory = EditedInventory([], inventorydate, method, visibility, city,
+        inventory = EditedInventory([], inventorydate, method, edit_reason, visibility, city,
                               method_info, attachments, more_info, user, report_obj)
         inventory.save()
 
@@ -123,5 +124,6 @@ class EditedInventory(MongoModel):
             'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'moreInfo': str(self.more_info),
+            'editReason': str(self.edit_reason),
             'originalReport': str(self.original_report._id)
         }

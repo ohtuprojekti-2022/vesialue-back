@@ -8,6 +8,7 @@ from models.edited_inventory import EditedInventory
 from models.area import Area
 from services.validation import validation
 
+
 class InventoryService:
     """ Class responsible for inventory logic."""
 
@@ -46,23 +47,26 @@ class InventoryService:
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_date(data['inventorydate'])
         validation.validate_method(data['method'])
+        validation.validate_edit_reason(data['editReason'])
         self.validate_original_inventory_id(data['originalReport'])
 
         city = self.get_city(self.get_center(data['areas']))
 
-        user_id_original = self.get_inventory(data['originalReport'])['user']['id']
+        user_id_original = self.get_inventory(
+            data['originalReport'])['user']['id']
         user_id_edited = str(user._id)
         if user_id_edited != user_id_original:
             raise Unauthorized(description='Authorization error')
 
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
-                                     method=data['method'], visibility=data['visibility'],
-                                     city=city,
-                                     method_info=data['methodInfo'],
-                                     attachments=data['attachments'],
-                                     more_info=data['moreInfo'],
-                                     user=user,
-                                     original_report=data['originalReport'])
+                                           method=data['method'], visibility=data['visibility'],
+                                           city=city,
+                                           method_info=data['methodInfo'],
+                                           edit_reason=data['editReason'],
+                                           attachments=data['attachments'],
+                                           more_info=data['moreInfo'],
+                                           user=user,
+                                           original_report=data['originalReport'])
 
         return inventory
 
@@ -80,7 +84,8 @@ class InventoryService:
             raise Unauthorized(description='Admin only')
         inventory = None
         try:
-            inventory = EditedInventory.objects.get({'_id': ObjectId(inventory_id)})
+            inventory = EditedInventory.objects.get(
+                {'_id': ObjectId(inventory_id)})
         except (EditedInventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
@@ -169,22 +174,25 @@ class InventoryService:
 
         edited_inv_json = self.get_edited_inventory(edit_id, is_admin)
         original_inv_id = edited_inv_json['originalReport']
-        original_inv = Inventory.objects.get({'_id': ObjectId(original_inv_id)})
+        original_inv = Inventory.objects.get(
+            {'_id': ObjectId(original_inv_id)})
 
         new_inv = self.inventory_json_to_object_format(edited_inv_json)
         self.__delete_areas(original_inv_id)
-        areas = Inventory.create_areas(original_inv, self.__area_json_to_list(edited_inv_json['areas']))[1]
+        areas = Inventory.create_areas(
+            original_inv, self.__area_json_to_list(edited_inv_json['areas']))[1]
         Inventory.update_areas(original_inv, areas)
 
         try:
-            Inventory.objects.raw({'_id': ObjectId(original_inv_id)}).update({"$set":new_inv})
+            Inventory.objects.raw(
+                {'_id': ObjectId(original_inv_id)}).update({"$set": new_inv})
 
         except:
             raise BadRequest(description='Invalid data')
         self.delete_edit(edit_id, is_admin)
         return edited_inv_json
 
-    def __area_json_to_list(self, areas): # pragma: no cover
+    def __area_json_to_list(self, areas):  # pragma: no cover
         area_list = []
 
         for area in areas:
@@ -192,7 +200,7 @@ class InventoryService:
 
         return area_list
 
-    def __delete_areas(self, id): # pragma: no cover
+    def __delete_areas(self, id):  # pragma: no cover
         try:
             Area.objects.raw({'inventory': ObjectId(id)}).delete()
         except (Area.DoesNotExist, InvalidId) as error:
@@ -216,5 +224,6 @@ class InventoryService:
             'attachments': json['attachments'],
             'more_info': json['moreInfo']
         }
+
 
 inventory_service = InventoryService()
