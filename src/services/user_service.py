@@ -31,7 +31,7 @@ class UserService:
             raise BadRequest(description='Email already exists.')
 
         user = User.create(username=username, password=password,
-                               name=name, email=email, phone=phone)
+                           name=name, email=email, phone=phone)
 
         return user.to_json()
 

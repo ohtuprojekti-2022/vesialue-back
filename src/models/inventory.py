@@ -62,6 +62,14 @@ class Inventory(MongoModel):
                               method_info, attachments, name, email, phone, more_info, user)
         inventory.save()
 
+        areas, area_refs = Inventory.create_areas(inventory, coordinates)
+
+        inventory = Inventory.update_areas(inventory, area_refs)
+
+        return [inventory.to_json(hide_email=False), areas]
+
+    @staticmethod
+    def create_areas(inventory, coordinates):
         area_refs = []
         areas = []
         for area_coordinates in coordinates:
@@ -71,7 +79,7 @@ class Inventory(MongoModel):
 
         inventory = Inventory.update_areas(inventory, area_refs)
 
-        return [inventory.to_json(hide_email=False), areas]
+        return areas, area_refs
 
     @staticmethod
     def update_areas(inventory, new_area_refs):

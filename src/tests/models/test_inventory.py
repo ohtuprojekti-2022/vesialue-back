@@ -1,8 +1,6 @@
 import unittest
 import re
-import datetime
 import tests.test_tools as test_tools
-from models.area import Area
 from models.user import User
 from utils.mongo import connect_to_db
 from models.inventory import Inventory
