@@ -66,7 +66,7 @@ class Inventory(MongoModel):
 
         inventory = Inventory.update_areas(inventory, area_refs)
 
-        return [inventory.to_json(hide_email=False), areas]
+        return [inventory.to_json(hide_personal_info=False), areas]
 
     @staticmethod
     def create_areas(inventory, coordinates):
