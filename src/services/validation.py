@@ -4,7 +4,8 @@ from werkzeug.exceptions import BadRequest
 
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{10,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{10,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
-PHONE_REGEX = r'^((04[0-9]{1})(\s?|-?)|050(\s?|-?)|0457(\s?|-?)|[+]?358(\s?|-?)50|0358(\s?|-?)50|00358(\s?|-?)50|[+]?358(\s?|-?)4[0-9]{1}|0358(\s?|-?)4[0-9]{1}|00358(\s?|-?)4[0-9]{1})(\s?|-?)(([0-9]{3,4})(\s|\-)?[0-9]{1,4})$'
+PHONE_REGEX = r'^\+?(?:[0-9][ |-]?){6,14}[0-9]$'
+
 
 class Validation:
     """ Class responsible for validation logic."""
@@ -57,5 +58,12 @@ class Validation:
     def validate_more_info(self, more_info):
         if len(more_info) > 500:
             raise BadRequest(description='Info too long.')
+
+    def validate_edit_reason(self, edit_reason):
+        if len(edit_reason) < 1:
+            raise BadRequest(description='No reason for edit.')
+        if len(edit_reason) > 500:
+            raise BadRequest(description='Reason for edit too long.')
+
 
 validation = Validation()

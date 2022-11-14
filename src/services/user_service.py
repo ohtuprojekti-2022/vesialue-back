@@ -2,10 +2,10 @@ import jwt
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash
 from pymodm import errors
+from bson.objectid import ObjectId
 from models.user import User
 from services.validation import validation
 from utils.config import SECRET_KEY
-from bson.objectid import ObjectId
 
 class UserService:
     """ Class responsible for user logic."""
@@ -31,7 +31,7 @@ class UserService:
             raise BadRequest(description='Email already exists.')
 
         user = User.create(username=username, password=password,
-                               name=name, email=email, phone=phone)
+                           name=name, email=email, phone=phone)
 
         return user.to_json()
 
@@ -65,8 +65,7 @@ class UserService:
         token = self.get_token(headers)
         if token is not None and token['admin'] == "1":
             return True
-        else:
-            return False
+        return False
 
     def edit(self, user_data):
         username = user_data['username']
@@ -107,10 +106,12 @@ class UserService:
             if not decoded_token['user_id'] or not decoded_token['admin']:
                 raise BadRequest(description='Authorization token missing or invalid')
             return decoded_token
+        return None
 
     def check_authorization(self, headers: dict) -> User:
         token = self.get_token(headers)
         if token is not None:
             return User.objects.get({'_id': ObjectId(token['user_id'])})
+        return None
 
 user_service = UserService()
