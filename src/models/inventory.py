@@ -49,7 +49,7 @@ class Inventory(MongoModel):
     email = fields.CharField(blank=True)
     phone = fields.CharField(blank=True)
     more_info = fields.CharField(blank=True)
-    user = ReferenceField(User, blank= True)
+    user = ReferenceField(User, blank=True)
 
     class Meta:
         connection_alias = 'app'
@@ -62,6 +62,14 @@ class Inventory(MongoModel):
                               method_info, attachments, name, email, phone, more_info, user)
         inventory.save()
 
+        areas, area_refs = Inventory.create_areas(inventory, coordinates)
+
+        inventory = Inventory.update_areas(inventory, area_refs)
+
+        return [inventory.to_json(hide_personal_info=False), areas]
+
+    @staticmethod
+    def create_areas(inventory, coordinates):
         area_refs = []
         areas = []
         for area_coordinates in coordinates:
@@ -71,20 +79,30 @@ class Inventory(MongoModel):
 
         inventory = Inventory.update_areas(inventory, area_refs)
 
-        return [inventory.to_json(), areas]
+        return areas, area_refs
 
     @staticmethod
     def update_areas(inventory, new_area_refs):
         inventory.areas = new_area_refs
         return inventory.save()
 
-    def to_json(self):
+    def to_json(self, hide_personal_info: bool = False):
         area_refs = []
         for area_ref in self.areas:
             area_refs.append(area_ref.to_json())
+
+        # Check if report is made by registered user. Empty email and phone fields if needed
         user_json = None
         if self.user:
             user_json = self.user.to_json()
+            if hide_personal_info:
+                user_json['email'] = ""
+                user_json['phone'] = ""
+
+        # Clear the email and phone number fields if needed
+        user_email = "" if hide_personal_info else str(self.email)
+        user_phone = "" if hide_personal_info else str(self.phone)
+
         return {
             'id': str(self._id),
             'areas': area_refs,
@@ -96,7 +114,7 @@ class Inventory(MongoModel):
             'methodInfo': str(self.method_info),
             'attachments': self.attachments,
             'name': str(self.name),
-            'email': str(self.email),
-            'phone': str(self.phone),
+            'email': user_email,
+            'phone': user_phone,
             'moreInfo': str(self.more_info)
         }
