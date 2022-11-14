@@ -77,7 +77,7 @@ class InventoryService:
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
-        return inventory.to_json(hide_email=not is_admin)
+        return inventory.to_json(hide_personal_info=not is_admin)
 
     def get_edited_inventory(self, inventory_id, is_admin=False):
         if is_admin is False:
@@ -155,7 +155,7 @@ class InventoryService:
     def get_all_inventories(self, is_admin: bool = False):
         inventories = []
         for item in Inventory.objects.all():
-            inventories.append(item.to_json(hide_email=not is_admin))
+            inventories.append(item.to_json(hide_personal_info=not is_admin))
 
         return inventories
 
