@@ -5,6 +5,7 @@ from werkzeug.exceptions import BadRequest
 COORDINATE_REGEX = r"\{'lat': -?[1-9]?[0-9].\d{10,15}, 'lng': -?(1[0-7]?[0-9]|[1-7]?[0-9]|180).\d{10,15}\}"
 EMAIL_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
 PHONE_REGEX = r'^\+?(?:[0-9][ |-]?){6,14}[0-9]$'
+NAME_REGEX = r'^[a-zA-Z\s]*$'
 
 
 class Validation:
@@ -47,6 +48,10 @@ class Validation:
     def validate_phone(self, phone):
         if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
             raise BadRequest(description='Invalid phone number.')
+    
+    def validate_name(self, name):
+        if re.fullmatch(NAME_REGEX, name) is None:
+            raise BadRequest(description='Invalid name.')
 
     def validate_method_info(self, method, method_info):
         if method == 'other':

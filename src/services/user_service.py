@@ -24,6 +24,7 @@ class UserService:
         validation.validate_email(email)
         validation.validate_phone(phone)
         validation.validate_username(username)
+        validation.validate_name(name)
 
         if self.user_exists_by_field("username", username):
             raise BadRequest(description='Username already exists.')
