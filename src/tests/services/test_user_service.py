@@ -100,6 +100,14 @@ class TestUserService(unittest.TestCase):
             'username': "testaaja",
             'admin': "0"
             })
+    
+    def test_create_user_invalid_name(self):
+        with pytest.raises(BadRequest):
+            us.create_user({"username":"userperson500",
+                        "password":"salainensana123",
+                        "name":"xX_pr0_Xx@@-..-",
+                        "email":"testimaili@gmail.com",
+                        "phone":"0507485738"})
 
     def test_create_user_invalid_phone_number(self):
         with pytest.raises(BadRequest):
