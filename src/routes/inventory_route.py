@@ -18,7 +18,7 @@ class AddInventory(Resource):
         user = user_service.check_authorization(request.headers)
         inventory = inventory_service.add_inventory(data, user)
 
-        return inventory, 200
+        return inventory, 201
 
     def put(self):
         content_type = request.headers.get('Content-Type')
@@ -48,7 +48,7 @@ class EditRequest(Resource):
 
         inventory = inventory_service.add_edited_inventory(data, user)
 
-        return inventory, 200
+        return inventory, 201
 
     def get(self):
         is_admin = user_service.check_admin(request.headers)

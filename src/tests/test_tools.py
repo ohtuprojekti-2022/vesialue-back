@@ -3,7 +3,7 @@ from models.user import User
 from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
 
-"""Methods and constants only used for unit testing."""
+"""Methods and constants only used for testing."""
 USERS = [{
 	"username": "testaaja",
 	"password": "sanasala123?",
