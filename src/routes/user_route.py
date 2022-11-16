@@ -29,6 +29,6 @@ class EditPassword(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
-        return user_service.edit(data['username'],
-                                 data['old_password'],
+        return user_service.edit_password(data['username'],
+                                 data['current_password'],
                                  data['new_password']), 200
