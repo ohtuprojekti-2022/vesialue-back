@@ -21,3 +21,14 @@ class EditUser(Resource):
             return {'error': 'bad request'}, 400
         user_data = request.get_json()
         return user_service.edit(user_data), 200
+
+@api.route('/edit-password')
+class EditPassword(Resource):
+    def post(self):
+        content_type = request.headers.get('Content-Type')
+        if content_type != 'application/json':
+            return {'error': 'bad request'}, 400
+        data = request.get_json()
+        return user_service.edit(data['username'],
+                                 data['old_password'],
+                                 data['new_password']), 200

@@ -1,6 +1,6 @@
 import jwt
 from werkzeug.exceptions import BadRequest
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from pymodm import errors
 from bson.objectid import ObjectId
 from models.user import User
@@ -31,7 +31,9 @@ class UserService:
         if self.user_exists_by_field("email", email):
             raise BadRequest(description='Email already exists.')
 
-        user = User.create(username=username, password=password,
+        password_hash = generate_password_hash(password)
+
+        user = User.create(username=username, password_hash=password_hash,
                            name=name, email=email, phone=phone)
 
         return user.to_json()
@@ -71,8 +73,6 @@ class UserService:
     def edit(self, user_data):
         username = user_data['username']
         user = User.objects.raw({'username': {'$eq': username}}).first()
-        print(user.email)
-        print(user_data)
 
         if user.email != user_data['email']:
             validation.validate_email(user_data['email'])
@@ -83,7 +83,21 @@ class UserService:
                                                                   "name": user_data['name']}})
 
         user = User.objects.raw({'username': {'$eq': username}}).first()
-        print(user.to_json())
+        user_json = user.to_json()
+
+        return {'auth': self.generate_token(user_json), 'user': user_json}
+
+    def edit_password(self, username, old_password, new_password):
+        user = User.objects.raw({'username': {'$eq': username}}).first()
+        if not check_password_hash(user.password, old_password):
+            raise BadRequest(description='Invalid current password.')
+
+        validation.validate_password(new_password)
+        password_hash = generate_password_hash(new_password)
+
+        User.objects.raw({"username": username}).update({"$set": {"password": password_hash}})
+
+        user = User.objects.raw({'username': {'$eq': username}}).first()
         user_json = user.to_json()
 
         return {'auth': self.generate_token(user_json), 'user': user_json}

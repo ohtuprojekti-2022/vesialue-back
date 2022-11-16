@@ -1,6 +1,4 @@
 from pymodm import MongoModel, fields
-from werkzeug.security import generate_password_hash
-
 
 class User(MongoModel):
     _id = fields.ObjectId()
@@ -17,9 +15,8 @@ class User(MongoModel):
         final = True
 
     @staticmethod
-    def create(username, password, name, email, phone):
-        user = User(username, generate_password_hash(
-            password), name, email, phone, admin=0)
+    def create(username, password_hash, name, email, phone):
+        user = User(username, password_hash, name, email, phone, admin=0)
         user.save()
         return user
 
