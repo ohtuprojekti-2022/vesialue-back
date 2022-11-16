@@ -105,7 +105,7 @@ class TestUserService(unittest.TestCase):
         with pytest.raises(BadRequest):
             us.create_user({"username":"userperson500",
                         "password":"salainensana123",
-                        "name":"xX_pr0_Xx@@-..-",
+                        "name":"abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg213455645764564555555555645645645643",
                         "email":"testimaili@gmail.com",
                         "phone":"0507485738"})
 
