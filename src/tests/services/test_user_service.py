@@ -232,7 +232,7 @@ class TestUserService(unittest.TestCase):
             'admin': "0"
             })
 
-    def test_edit_password(self):
+    def test_edit_password_all_good(self):
         user_json = self.user2.to_json()
         self.assertEqual(user_json, {
             'id': str(user_json["id"]) or None,
@@ -251,3 +251,43 @@ class TestUserService(unittest.TestCase):
         user = User.objects.raw({'username': {'$eq': self.user2.username}}).first()
 
         self.assertTrue(check_password_hash(user.password, 'salaisempisana'))
+
+    def test_edit_password_invalid_old_password(self):
+        user_json = self.user2.to_json()
+        self.assertEqual(user_json, {
+            'id': str(user_json["id"]) or None,
+            'name': "Mikko Mallikas",
+            'email': "postimaili@gmail.com",
+            'phone': "0507384955",
+            'username': "mikko",
+            'admin': "0"
+            })
+
+        username = 'mikko'
+        old_password = 'salainen'
+        new_password = 'salaisempisana'
+
+        with pytest.raises(BadRequest) as excinfo:
+            us.edit_password(username, old_password, new_password)
+        self.assertEqual(str(excinfo.value),
+                         '400 Bad Request: Invalid current password.')
+
+    def test_edit_password_new_password_too_short(self):
+        user_json = self.user2.to_json()
+        self.assertEqual(user_json, {
+            'id': str(user_json["id"]) or None,
+            'name': "Mikko Mallikas",
+            'email': "postimaili@gmail.com",
+            'phone': "0507384955",
+            'username': "mikko",
+            'admin': "0"
+            })
+
+        username = 'mikko'
+        old_password = 'salainensana'
+        new_password = 'sana'
+
+        with pytest.raises(BadRequest) as excinfo:
+            us.edit_password(username, old_password, new_password)
+        self.assertEqual(str(excinfo.value),
+                         '400 Bad Request: Password too short.')

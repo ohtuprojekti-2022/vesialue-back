@@ -245,6 +245,7 @@ class TestInventoryService(unittest.TestCase):
         del edited_report["areas"]
         edited_report["editReason"] = "test reason"
         edited_report["originalReport"] = original_inventory["id"]
+
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(str(excinfo.value),

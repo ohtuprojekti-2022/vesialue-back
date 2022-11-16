@@ -27,7 +27,7 @@ class AddInventory(Resource):
         data = request.get_json()
 
         is_admin = user_service.check_admin(request.headers)
-        
+
         inventory = inventory_service.approve_edit(data['id'], is_admin)
 
         return inventory, 200
