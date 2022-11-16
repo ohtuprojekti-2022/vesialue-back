@@ -15,7 +15,7 @@ class SetAdmin(Resource):
 
 @api.route('/edit')
 class EditUser(Resource):
-    def post(self):
+    def put(self):
         content_type = request.headers.get('Content-Type')
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
