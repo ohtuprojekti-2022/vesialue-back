@@ -7,7 +7,10 @@ api = Namespace('tests')
 @api.route('/reset')
 class Tests(Resource):
     def post(self):
-        tools.delete_all_users()
-        tools.delete_all_inventories()
-        tools.delete_all_edited_inventories()
-        return 'reset succeed', 200
+        try:
+            tools.delete_all_users()
+            tools.delete_all_inventories()
+            tools.delete_all_edited_inventories()
+        except Exception as e:
+            return {f'{type(e)}': e.args}, 400
+        return 'Reset succeed', 200
