@@ -48,6 +48,10 @@ class Validation:
         if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
             raise BadRequest(description='Invalid phone number.')
 
+    def validate_name(self, name):
+        if len(name) > 100:
+            raise BadRequest(description='Invalid name.')
+
     def validate_method_info(self, method, method_info):
         if method == 'other':
             if len(method_info) > 100:

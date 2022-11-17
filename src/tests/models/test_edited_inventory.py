@@ -1,11 +1,12 @@
+import re
 import unittest
-from models.edited_inventory import EditedInventory
+from utils.mongo import connect_to_db
+from werkzeug.security import generate_password_hash
 import tests.test_tools as tt
+from models.edited_inventory import EditedInventory
 from models.user import User
 from models.inventory import Inventory
-from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
-import re
 
 connect_to_db()
 
@@ -14,7 +15,7 @@ class TestEditedInventory(unittest.TestCase):
     def setUp(self):
         tt.delete_all_edited_inventories()
         self.user = User.create(username="testikäyttäjä",
-                                password="1234qwer",
+                                password_hash=generate_password_hash("1234qwer"),
                                 name="Inven Tory",
                                 email="inventory@gmail.com",
                                 phone="040777888999")

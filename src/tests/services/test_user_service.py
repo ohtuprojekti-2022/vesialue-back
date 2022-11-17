@@ -4,6 +4,7 @@ import jwt
 from utils.mongo import connect_to_db
 from services.user_service import user_service as us
 from werkzeug.exceptions import BadRequest
+from werkzeug.security import check_password_hash, generate_password_hash
 from utils.config import SECRET_KEY
 import tests.test_tools as test_tools
 from models.user import User
@@ -15,16 +16,17 @@ class TestUserService(unittest.TestCase):
     def setUp(self):
         test_tools.delete_all_users()
         self.user = User.create(username="testi",
-                    password="12345678",
+                    password_hash=generate_password_hash("12345678"),
                     name="Sirpa Anneli",
                     email="elakelaiset@rymattyla.fi",
                     phone="09347787")
         self.user2 = User.create(username="mikko",
-                    password="salainensana",
+                    password_hash=generate_password_hash("salainensana"),
                     name="Mikko Mallikas",
                     email="postimaili@gmail.com",
                     phone="0507384955")
 
+### REGISTER USER ###
     def test_create_user_password_too_short(self):
         with pytest.raises(BadRequest):
             us.create_user({"username":"testilyhytsana",
@@ -100,6 +102,14 @@ class TestUserService(unittest.TestCase):
             'username': "testaaja",
             'admin': "0"
             })
+    
+    def test_create_user_invalid_name(self):
+        with pytest.raises(BadRequest):
+            us.create_user({"username":"userperson500",
+                        "password":"salainensana123",
+                        "name":"abcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg213455645764564555555555645645645643",
+                        "email":"testimaili@gmail.com",
+                        "phone":"0507485738"})
 
     def test_create_user_invalid_phone_number(self):
         with pytest.raises(BadRequest):
@@ -139,6 +149,7 @@ class TestUserService(unittest.TestCase):
         users = test_tools.get_all_users()
         self.assertEqual(len(list(users)), 4)
 
+### LOGIN USER ###
     def test_generate_token_generates_token(self):
         user = us.create_user({"username":"testaaja",
                 "password":"salainensana",
@@ -188,6 +199,7 @@ class TestUserService(unittest.TestCase):
 
         self.assertEqual(loggeduser, {"auth": token, "user": createduser})
 
+### EDIT USER ###
     def test_set_admin(self):
         self.assertEqual(self.user.admin, 0)
         us.set_admin(self.user.username, 1)
@@ -219,3 +231,63 @@ class TestUserService(unittest.TestCase):
             'username': "mikko",
             'admin': "0"
             })
+
+    def test_edit_password_all_good(self):
+        user_json = self.user2.to_json()
+        self.assertEqual(user_json, {
+            'id': str(user_json["id"]) or None,
+            'name': "Mikko Mallikas",
+            'email': "postimaili@gmail.com",
+            'phone': "0507384955",
+            'username': "mikko",
+            'admin': "0"
+            })
+
+        username = 'mikko'
+        old_password = 'salainensana'
+        new_password = 'salaisempisana'
+        
+        us.edit_password(username, old_password, new_password)
+        user = User.objects.raw({'username': {'$eq': self.user2.username}}).first()
+
+        self.assertTrue(check_password_hash(user.password, 'salaisempisana'))
+
+    def test_edit_password_invalid_old_password(self):
+        user_json = self.user2.to_json()
+        self.assertEqual(user_json, {
+            'id': str(user_json["id"]) or None,
+            'name': "Mikko Mallikas",
+            'email': "postimaili@gmail.com",
+            'phone': "0507384955",
+            'username': "mikko",
+            'admin': "0"
+            })
+
+        username = 'mikko'
+        old_password = 'salainen'
+        new_password = 'salaisempisana'
+
+        with pytest.raises(BadRequest) as excinfo:
+            us.edit_password(username, old_password, new_password)
+        self.assertEqual(str(excinfo.value),
+                         '400 Bad Request: Invalid current password.')
+
+    def test_edit_password_new_password_too_short(self):
+        user_json = self.user2.to_json()
+        self.assertEqual(user_json, {
+            'id': str(user_json["id"]) or None,
+            'name': "Mikko Mallikas",
+            'email': "postimaili@gmail.com",
+            'phone': "0507384955",
+            'username': "mikko",
+            'admin': "0"
+            })
+
+        username = 'mikko'
+        old_password = 'salainensana'
+        new_password = 'sana'
+
+        with pytest.raises(BadRequest) as excinfo:
+            us.edit_password(username, old_password, new_password)
+        self.assertEqual(str(excinfo.value),
+                         '400 Bad Request: Password too short.')

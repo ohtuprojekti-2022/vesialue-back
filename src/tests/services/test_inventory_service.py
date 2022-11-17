@@ -6,6 +6,7 @@ import json
 from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
+from werkzeug.security import generate_password_hash
 from tests.test_tools import COORDINATES_EDITED, TEST_REPORTS, USERS
 import tests.test_tools as test_tools
 from models.user import User
@@ -20,7 +21,7 @@ class TestInventoryService(unittest.TestCase):
         test_tools.delete_all_edited_inventories()
         self.ins = InventoryService()
         self.user = User.create(username="testaaja",
-                                password="sanasala123?",
+                                password_hash=generate_password_hash("sanasala123?"),
                                 name="Hanna Hannala",
                                 email="hanna@sposti.fi",
                                 phone="")
@@ -244,6 +245,7 @@ class TestInventoryService(unittest.TestCase):
         del edited_report["areas"]
         edited_report["editReason"] = "test reason"
         edited_report["originalReport"] = original_inventory["id"]
+
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(str(excinfo.value),
@@ -377,7 +379,7 @@ class TestInventoryService(unittest.TestCase):
 
     def test_adding_edited_inventory_with_different_user_results_in_exception(self):
         user_b = User.create(username="mephisto",
-                             password="abrakadabra62",
+                             password_hash=generate_password_hash("abrakadabra62"),
                              name="Mephistopheles",
                              email="mephisto@sposti.fi",
                              phone="")

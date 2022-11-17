@@ -1,6 +1,7 @@
 import unittest
 import re
 import tests.test_tools as test_tools
+from werkzeug.security import generate_password_hash
 from models.user import User
 from utils.mongo import connect_to_db
 from models.inventory import Inventory
@@ -13,7 +14,7 @@ class TestInventory(unittest.TestCase):
     def setUp(self):
         test_tools.delete_all_users()
         self.user = User.create(username="testikäyttäjä",
-                    password="1234qwer",
+                    password_hash=generate_password_hash("1234qwer"),
                     name="Inven Tory",
                     email="inventory@gmail.com",
                     phone="040777888999")
