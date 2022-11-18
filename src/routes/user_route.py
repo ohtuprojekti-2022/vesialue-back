@@ -11,7 +11,9 @@ class SetAdmin(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
-        return user_service.set_admin(data['username'], data['admin_value']), 200
+        if user_service.check_admin(request.headers):
+        	return user_service.set_admin(data['username'], data['admin_value']), 200
+        return {'error': 'bad request'}, 400
 
 @api.route('/edit')
 class EditUser(Resource):
@@ -20,7 +22,8 @@ class EditUser(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         user_data = request.get_json()
-        return user_service.edit(user_data), 200
+        user = user_service.check_authorization(request.headers)
+        return user_service.edit(user, user_data), 200
 
 @api.route('/edit-password')
 class EditPassword(Resource):
@@ -29,6 +32,5 @@ class EditPassword(Resource):
         if content_type != 'application/json':
             return {'error': 'bad request'}, 400
         data = request.get_json()
-        return user_service.edit_password(data['username'],
-                                 data['current_password'],
-                                 data['new_password']), 200
+        user = user_service.check_authorization(request.headers)
+        return user_service.edit_password(user, data['current_password'], data['new_password']), 200
