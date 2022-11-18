@@ -2,6 +2,7 @@ from models.area import Area
 from models.user import User
 from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
+from utils.mongo import get_database
 
 """Methods and constants only used for testing."""
 USERS = [{
@@ -68,10 +69,11 @@ def get_all_users():
 
 
 def delete_all_users():
-    users = get_all_users()
-    if users:
-        for user in users:
-            user.delete()
+    db = get_database()
+    try:
+        db.drop_collection('user')
+    except Exception as error:
+        raise(error)
 
 
 def get_all_inventories():
@@ -83,14 +85,16 @@ def get_all_inventories():
 
 
 def delete_all_inventories():
+    db = get_database()
     try:
-        Inventory.objects.all().delete()
-        Area.objects.all().delete()
-    except:
-        pass
+        db.drop_collection('inventory')
+        db.drop_collection('area')
+    except Exception as error:
+        raise(error)
 
 def delete_all_edited_inventories():
+    db = get_database()
     try:
-        EditedInventory.objects.all().delete()
-    except:
-        pass
+        db.drop_collection('edited_inventory')
+    except Exception as error:
+        raise(error)
