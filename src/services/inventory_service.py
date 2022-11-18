@@ -15,7 +15,7 @@ class InventoryService:
     def __init__(self):
         """ Class constructor. Creates a new inventory service."""
 
-    def add_inventory(self, data, user):
+    def add_inventory(self, data, user, is_admin: bool = False):
         self.validate_missing_parameters(data, False)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
@@ -40,7 +40,10 @@ class InventoryService:
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
 
-        return inventory
+        inventory_report, areas = inventory
+        inventory = self.get_inventory(inventory_report['id'], is_admin)
+
+        return [inventory, areas]
 
     def add_edited_inventory(self, data, user):
         self.validate_missing_parameters(data, True)

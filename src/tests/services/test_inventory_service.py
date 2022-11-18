@@ -27,7 +27,7 @@ class TestInventoryService(unittest.TestCase):
                                 phone="")
 
     def test_add_inventory(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[0], None)[0]
+        inventory = self.ins.add_inventory(TEST_REPORTS[0], None, True)[0]
         assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
         self.assertEqual(inventory['user'], None)
         self.assertEqual(inventory['inventorydate']
@@ -41,7 +41,7 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory['moreInfo'], TEST_REPORTS[0]['moreInfo'])
 
     def test_add_inventory_with_user(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user, True)[0]
         assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
         self.assertEqual(inventory['user'], self.user.to_json())
         self.assertEqual(inventory['inventorydate']

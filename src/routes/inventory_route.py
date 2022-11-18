@@ -16,7 +16,8 @@ class AddInventory(Resource):
 
         data = request.get_json()
         user = user_service.check_authorization(request.headers)
-        inventory = inventory_service.add_inventory(data, user)
+        is_admin = user_service.check_admin(request.headers)
+        inventory = inventory_service.add_inventory(data, user, is_admin)
 
         return inventory, 201
 
@@ -36,6 +37,7 @@ class AddInventory(Resource):
         is_admin = user_service.check_admin(request.headers)
         return inventory_service.get_all_inventories(is_admin), 200
 
+
 @api.route('/edit')
 class EditRequest(Resource):
     def post(self):
@@ -54,6 +56,7 @@ class EditRequest(Resource):
         is_admin = user_service.check_admin(request.headers)
         return inventory_service.get_all_edited_inventories(is_admin), 200
 
+
 @api.route('/edit/<string:report_id>')
 class GetEdited(Resource):
     def get(self, report_id):
@@ -66,12 +69,14 @@ class GetEdited(Resource):
         inventory_service.delete_edit(report_id, is_admin)
         return 200
 
+
 @api.route('/<string:report_id>')
 class GetInventory(Resource):
     def get(self, report_id):
         is_admin = user_service.check_admin(request.headers)
         inventory = inventory_service.get_inventory(report_id, is_admin)
         return inventory, 200
+
 
 @api.route('/areas')
 class GetAreas(Resource):
