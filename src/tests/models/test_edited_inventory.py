@@ -1,14 +1,9 @@
-import re
 import unittest
-from utils.mongo import connect_to_db
 from werkzeug.security import generate_password_hash
 import tests.test_tools as tt
 from models.edited_inventory import EditedInventory
 from models.user import User
 from models.inventory import Inventory
-from services.inventory_service import InventoryService
-
-connect_to_db()
 
 
 class TestEditedInventory(unittest.TestCase):
@@ -50,7 +45,8 @@ class TestEditedInventory(unittest.TestCase):
         self.assertEqual(edited_inventory['method'], "dive")
         self.assertEqual(edited_inventory['visibility'], "normal")
         self.assertEqual(edited_inventory['methodInfo'], "")
-        self.assertEqual(edited_inventory['editReason'], "Päivämäärä oli väärin")
+        self.assertEqual(
+            edited_inventory['editReason'], "Päivämäärä oli väärin")
         self.assertEqual(edited_inventory['attachments'], True)
         self.assertEqual(
             edited_inventory['moreInfo'], "Kamera katosi sukeltaessa, mutta voin tarvittaessa piirtää kuvat ulkomuistista.")
