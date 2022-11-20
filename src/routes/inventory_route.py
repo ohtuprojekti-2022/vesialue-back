@@ -21,18 +21,6 @@ class AddInventory(Resource):
 
         return inventory, 201
 
-    def put(self):
-        content_type = request.headers.get('Content-Type')
-        if content_type != 'application/json':
-            return {'error': 'bad request'}, 400
-        data = request.get_json()
-
-        is_admin = user_service.check_admin(request.headers)
-
-        inventory = inventory_service.approve_edit(data['id'], is_admin)
-
-        return inventory, 200
-
     def get(self):
         is_admin = user_service.check_admin(request.headers)
         return inventory_service.get_all_inventories(is_admin), 200
@@ -75,6 +63,18 @@ class GetInventory(Resource):
     def get(self, report_id):
         is_admin = user_service.check_admin(request.headers)
         inventory = inventory_service.get_inventory(report_id, is_admin)
+        return inventory, 200
+
+    def put(self, report_id):
+        content_type = request.headers.get('Content-Type')
+        if content_type != 'application/json':
+            return {'error': 'bad request'}, 400
+        data = request.get_json()
+
+        is_admin = user_service.check_admin(request.headers)
+
+        inventory = inventory_service.approve_edit(report_id, is_admin)
+
         return inventory, 200
 
 
