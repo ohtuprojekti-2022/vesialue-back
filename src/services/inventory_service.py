@@ -15,7 +15,7 @@ class InventoryService:
     def __init__(self):
         """ Class constructor. Creates a new inventory service."""
 
-    def add_inventory(self, data, user):
+    def add_inventory(self, data, user, is_admin: bool = False):
         self.validate_missing_parameters(data, False)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
@@ -40,7 +40,10 @@ class InventoryService:
                                      name=data['name'], email=data['email'], phone=data['phone'],
                                      more_info=data['moreInfo'], user=user)
 
-        return inventory
+        inventory_report, areas = inventory
+        inventory = self.get_inventory(inventory_report['id'], is_admin)
+
+        return [inventory, areas]
 
     def add_edited_inventory(self, data, user):
         self.validate_missing_parameters(data, True)
@@ -179,18 +182,20 @@ class InventoryService:
 
         new_inv = self.inventory_json_to_object_format(edited_inv_json)
         self.__delete_areas(original_inv_id)
-        areas = Inventory.create_areas(
-            original_inv, self.__area_json_to_list(edited_inv_json['areas']))[1]
-        Inventory.update_areas(original_inv, areas)
+        areas, area_refs = Inventory.create_areas(
+            original_inv, self.__area_json_to_list(edited_inv_json['areas']))
+        Inventory.update_areas(original_inv, area_refs)
 
         try:
             Inventory.objects.raw(
                 {'_id': ObjectId(original_inv_id)}).update({"$set": new_inv})
+            self.delete_edit(edit_id, is_admin)
+            updated_inventory = Inventory.objects.raw(
+                {'_id': ObjectId(original_inv_id)})[0]
+            return [updated_inventory.to_json(), areas]
 
         except:
             raise BadRequest(description='Invalid data')
-        self.delete_edit(edit_id, is_admin)
-        return edited_inv_json
 
     def __area_json_to_list(self, areas):  # pragma: no cover
         area_list = []

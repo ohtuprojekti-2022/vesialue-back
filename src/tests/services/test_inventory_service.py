@@ -3,14 +3,12 @@ import unittest
 import re
 import pytest
 import json
-from utils.mongo import connect_to_db
 from services.inventory_service import InventoryService
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
-from tests.test_tools import COORDINATES_EDITED, TEST_REPORTS, USERS
+from werkzeug.security import generate_password_hash
+from tests.test_tools import COORDINATES_EDITED, TEST_REPORTS
 import tests.test_tools as test_tools
 from models.user import User
-
-connect_to_db()
 
 
 class TestInventoryService(unittest.TestCase):
@@ -20,13 +18,13 @@ class TestInventoryService(unittest.TestCase):
         test_tools.delete_all_edited_inventories()
         self.ins = InventoryService()
         self.user = User.create(username="testaaja",
-                                password="sanasala123?",
+                                password_hash=generate_password_hash("sanasala123?"),
                                 name="Hanna Hannala",
                                 email="hanna@sposti.fi",
                                 phone="")
 
     def test_add_inventory(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[0], None)[0]
+        inventory = self.ins.add_inventory(TEST_REPORTS[0], None, True)[0]
         assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
         self.assertEqual(inventory['user'], None)
         self.assertEqual(inventory['inventorydate']
@@ -40,7 +38,7 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(inventory['moreInfo'], TEST_REPORTS[0]['moreInfo'])
 
     def test_add_inventory_with_user(self):
-        inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user)[0]
+        inventory = self.ins.add_inventory(TEST_REPORTS[2], self.user, True)[0]
         assert re.match(r'[0-9a-f]{24}', inventory['areas'][0]['area'])
         self.assertEqual(inventory['user'], self.user.to_json())
         self.assertEqual(inventory['inventorydate']
@@ -244,6 +242,7 @@ class TestInventoryService(unittest.TestCase):
         del edited_report["areas"]
         edited_report["editReason"] = "test reason"
         edited_report["originalReport"] = original_inventory["id"]
+
         with pytest.raises(BadRequest) as excinfo:
             self.ins.add_edited_inventory(edited_report, self.user)
         self.assertEqual(str(excinfo.value),
@@ -377,7 +376,8 @@ class TestInventoryService(unittest.TestCase):
 
     def test_adding_edited_inventory_with_different_user_results_in_exception(self):
         user_b = User.create(username="mephisto",
-                             password="abrakadabra62",
+                             password_hash=generate_password_hash(
+                                 "abrakadabra62"),
                              name="Mephistopheles",
                              email="mephisto@sposti.fi",
                              phone="")
