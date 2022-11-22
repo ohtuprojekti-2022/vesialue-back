@@ -393,3 +393,27 @@ class TestInventoryService(unittest.TestCase):
             self.ins.add_edited_inventory(edited_report, user_b)
         self.assertEqual(str(excinfo.value),
                          '401 Unauthorized: Authorization error')
+
+    def test_delete_inventory_as_admin_is_successful(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        self.ins.delete_inventory(inventory["id"], True)
+
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_inventory(inventory["id"], True)
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
+    def test_delete_inventory_as_non_admin_raises_exception(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.delete_inventory(inventory["id"], False)
+        self.assertEqual(str(excinfo.value),
+                         '401 Unauthorized: Admin only')
+        search = self.ins.get_inventory(inventory["id"], True)
+        self.assertEqual(search, inventory)
+
+    def test_delete_inventory_ivanlid_id_raises_exception(self):
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.delete_inventory('asdf', True)
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
