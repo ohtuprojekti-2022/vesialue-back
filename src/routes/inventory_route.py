@@ -72,6 +72,11 @@ class GetInventory(Resource):
         is_admin = user_service.check_admin(request.headers)
         inventory = inventory_service.get_inventory(report_id, is_admin)
         return inventory, 200
+    
+    def delete(self, report_id):
+        is_admin = user_service.check_admin(request.headers)
+        inventory_service.delete_inventory(report_id, is_admin)
+        return 200
 
 @api.route('/areas')
 class GetAreas(Resource):

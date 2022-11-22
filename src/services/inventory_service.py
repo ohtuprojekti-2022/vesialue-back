@@ -213,6 +213,14 @@ class InventoryService:
             EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
         except (EditedInventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
+    
+    def delete_inventory(self, edit_id, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+        try:
+            Inventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
+        except (EditedInventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
 
     def inventory_json_to_object_format(self, json):
 
