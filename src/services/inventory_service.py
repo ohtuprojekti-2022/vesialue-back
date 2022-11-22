@@ -157,7 +157,7 @@ class InventoryService:
 
     def get_all_inventories(self, is_admin: bool = False):
         inventories = []
-        for item in Inventory.objects.all():
+        for item in Inventory.objects.all().order_by([('inventorydate', -1)]):
             inventories.append(item.to_json(hide_personal_info=not is_admin))
 
         return inventories
