@@ -7,6 +7,7 @@ from models.user import User
 from services.validation import validation
 from utils.config import SECRET_KEY
 
+
 class UserService:
     """ Class responsible for user logic."""
 
@@ -45,11 +46,13 @@ class UserService:
 
         # Check if user exists in the database
         try:
-            user = User.objects.raw({
-                'username': {'$eq': username}
-            }).first()
+            user = User.objects.raw(
+                {'$or': [{'email': {'$eq': username}},
+                         {'username': {'$eq': username}}
+                         ]}).first()
         except (errors.DoesNotExist, errors.ModelDoesNotExist) as error:
-            raise BadRequest(description='Invalid username or password.') from error
+            raise BadRequest(
+                description='Invalid username or password.') from error
 
         # Validate user password hash
         if not check_password_hash(user.password, password):
@@ -80,7 +83,7 @@ class UserService:
         if user.email != user_data['email']:
             validation.validate_email(user_data['email'])
             if self.user_exists_by_field("email", user_data['email']):
-            	raise BadRequest(description='Email already exists.')
+                raise BadRequest(description='Email already exists.')
         validation.validate_phone(user_data['phone'])
         validation.validate_name(user_data['name'])
 
@@ -88,7 +91,8 @@ class UserService:
                                                                   "phone": user_data['phone'],
                                                                   "name": user_data['name']}})
 
-        user = User.objects.raw({'username': {'$eq': user_data['username']}}).first()
+        user = User.objects.raw(
+            {'username': {'$eq': user_data['username']}}).first()
         user_json = user.to_json()
 
         return {'auth': self.generate_token(user_json), 'user': user_json}
@@ -102,7 +106,8 @@ class UserService:
         validation.validate_password(new_password)
         password_hash = generate_password_hash(new_password)
 
-        User.objects.raw({"username": username}).update({"$set": {"password": password_hash}})
+        User.objects.raw({"username": username}).update(
+            {"$set": {"password": password_hash}})
 
         user = User.objects.raw({'username': {'$eq': username}}).first()
         user_json = user.to_json()
@@ -126,7 +131,8 @@ class UserService:
             token = str.replace(str(headers['Authorization']), 'Bearer ', '')
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             if not decoded_token['user_id'] or not decoded_token['admin']:
-                raise BadRequest(description='Authorization token missing or invalid')
+                raise BadRequest(
+                    description='Authorization token missing or invalid')
             return decoded_token
         return None
 
@@ -135,5 +141,6 @@ class UserService:
         if token is not None:
             return User.objects.get({'_id': ObjectId(token['user_id'])})
         return None
+
 
 user_service = UserService()
