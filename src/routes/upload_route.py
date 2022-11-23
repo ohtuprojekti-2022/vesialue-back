@@ -1,5 +1,6 @@
 from flask import request
 from flask_restx import Namespace, Resource
+from models.attachment import Attachment
 
 api = Namespace('upload')
 
@@ -9,3 +10,5 @@ class UploadAttachment(Resource):
         print(request.files)
         file = request.files['formFile']
         print(file)
+        att = Attachment(file=file.read())
+        att.save()
