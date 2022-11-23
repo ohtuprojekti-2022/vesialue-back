@@ -6,9 +6,9 @@ from werkzeug.exceptions import NotFound
 from models.attachment import Attachment
 from models.inventory import Inventory
 
-api = Namespace('upload')
+api = Namespace('files')
 
-@api.route('')
+@api.route('/upload')
 class UploadAttachment(Resource):
     def post(self):
         print(request.form)
@@ -22,3 +22,7 @@ class UploadAttachment(Resource):
 
         att = Attachment(file=file.read(), inventory=inventory)
         att.save()
+
+@api.route('/get/<string:file_id>')
+class GetAttachment(Resource):
+    def get(self):
