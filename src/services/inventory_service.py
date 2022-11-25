@@ -225,7 +225,7 @@ class InventoryService:
     
     def request_deletion(self, data, user):
         inventory = self.get_inventory(data['inventory'], user)
-        if user.id != inventory['user']['id']:
+        if str(user._id) != inventory['user']['id']:
             raise Unauthorized(description='Authorization error')
         delete_request = DeleteRequest.create(user, inventory['id'], data['reason'])
         return delete_request.to_json()

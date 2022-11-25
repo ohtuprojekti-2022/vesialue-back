@@ -417,3 +417,18 @@ class TestInventoryService(unittest.TestCase):
         with pytest.raises(NotFound) as excinfo:
             self.ins.delete_inventory('asdf', True)
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
+    def test_successful_delete_request_returns_json(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'user': self.user,
+                'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        result = self.ins.request_deletion(data, self.user)
+
+        self.assertIsNotNone(result['id'])
+        self.assertEqual(result['user'], data['user'].to_json())
+        self.assertEqual(result['inventory'], data['inventory'])
+        self.assertEqual(result['reason'], data['reason'])
+    
