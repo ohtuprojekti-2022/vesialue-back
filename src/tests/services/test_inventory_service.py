@@ -19,6 +19,7 @@ class TestInventoryService(unittest.TestCase):
         test_tools.delete_all_inventories()
         test_tools.delete_all_users()
         test_tools.delete_all_edited_inventories()
+        test_tools.delete_all_delete_requests()
         self.ins = InventoryService()
         self.user = User.create(username="testaaja",
                                 password_hash=generate_password_hash("sanasala123?"),
@@ -421,14 +422,113 @@ class TestInventoryService(unittest.TestCase):
     def test_successful_delete_request_returns_json(self):
         inventory = self.ins.add_inventory(
             TEST_REPORTS[2], self.user)[0]
-        data = {'user': self.user,
-                'inventory': inventory['id'],
+        data = {'inventory': inventory['id'],
                 'reason': 'tein vahingossa kopion'}
         
         result = self.ins.request_deletion(data, self.user)
 
         self.assertIsNotNone(result['id'])
-        self.assertEqual(result['user'], data['user'].to_json())
         self.assertEqual(result['inventory'], data['inventory'])
         self.assertEqual(result['reason'], data['reason'])
     
+    def test_request_deletion_by_different_user_results_in_exception(self):
+        other_user = User.create(username="mephisto",
+                             password_hash=generate_password_hash("abrakadabra62"),
+                             name="Mephistopheles",
+                             email="mephisto@sposti.fi",
+                             phone="")
+
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'en pidä tästä'}
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.request_deletion(data, other_user)
+        self.assertEqual(str(excinfo.value),
+                         '401 Unauthorized: Authorization error')
+
+    def test_approve_deletion_with_invalid_id_results_in_exception(self):
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.approve_deletion('fde24d', True)
+        self.assertEqual(str(excinfo.value),
+                         '404 Not Found: 404 not found')
+
+    def test_approve_deletion_as_non_admin_results_in_exception(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        result = self.ins.request_deletion(data, self.user)
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.approve_deletion(result['id'], False)
+        self.assertEqual(str(excinfo.value),
+                         '401 Unauthorized: Admin only')
+        requests = self.ins.get_all_delete_requests(True)
+        self.assertEqual(1, len(requests))
+    
+    def test_approve_deletion_as_admin_successfully_removes_request_and_inventory(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        result = self.ins.request_deletion(data, self.user)
+        self.ins.approve_deletion(result['id'], True)
+        
+        requests = self.ins.get_all_delete_requests(True)
+        self.assertEqual(0, len(requests))
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_inventory(result['inventory'])
+        self.assertEqual(str(excinfo.value),
+                         '404 Not Found: 404 not found')
+    
+    def test_removing_del_requests_as_non_admin_results_in_exception(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        result = self.ins.request_deletion(data, self.user)
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.remove_delete_request(result['id'], False)
+        self.assertEqual(str(excinfo.value),
+                         '401 Unauthorized: Admin only')
+        requests = self.ins.get_all_delete_requests(True)
+        self.assertEqual(1, len(requests))
+    
+    def test_removing_del_request_with_invalid_id_results_in_exception(self):
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.remove_delete_request('fde24d', True)
+        self.assertEqual(str(excinfo.value),
+                         '404 Not Found: 404 not found')
+    
+    def test_removing_del_request_with_valid_id_and_admin_status_succesful(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        result = self.ins.request_deletion(data, self.user)
+        self.ins.remove_delete_request(result['id'], True)
+        
+        requests = self.ins.get_all_delete_requests(True)
+        self.assertEqual(0, len(requests))
+        inventory = self.ins.get_inventory(result['inventory'])
+        self.assertIsNotNone(inventory)
+
+    def test_get_all_delete_requests_as_non_admin_results_in_excpetion(self):
+        with pytest.raises(Unauthorized) as excinfo:
+            self.ins.get_all_delete_requests(False)
+        self.assertEqual(str(excinfo.value),
+                         '401 Unauthorized: Admin only')
+
+    def test_get_all_delete_requests_successful_as_admin(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+        
+        self.ins.request_deletion(data, self.user)
+        result = self.ins.get_all_delete_requests(True)
+        self.assertEqual(1, len(result))

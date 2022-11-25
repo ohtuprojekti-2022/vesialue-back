@@ -2,6 +2,7 @@ from models.area import Area
 from models.user import User
 from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
+from models.delete_request import DeleteRequest
 
 """Methods and constants only used for testing."""
 USERS = [{
@@ -92,5 +93,11 @@ def delete_all_inventories():
 def delete_all_edited_inventories():
     try:
         EditedInventory.objects.all().delete()
+    except:
+        pass
+
+def delete_all_delete_requests():
+    try:
+        DeleteRequest.objects.all().delete()
     except:
         pass
