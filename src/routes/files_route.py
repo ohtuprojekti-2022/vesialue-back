@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, send_file
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from flask_restx import Namespace, Resource
@@ -23,6 +23,14 @@ class UploadAttachment(Resource):
         att = Attachment(file=file.read(), inventory=inventory)
         att.save()
 
-@api.route('/get/<string:file_id>')
+@api.route('/<string:attachment_id>')
 class GetAttachment(Resource):
-    def get(self):
+    def get(self, attachment_id):
+        print(attachment_id)
+        # get file from mongodb
+        try:
+            attachment = Attachment.objects.get(
+                {'_id': ObjectId(attachment_id)})
+            return send_file(attachment.file, attachment_filename="test.png")
+        except (Attachment.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
