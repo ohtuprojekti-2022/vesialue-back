@@ -97,7 +97,7 @@ class DeleteRequest(Resource):
 
         data = request.get_json()
         user = user_service.check_authorization(request.headers)
-        deletion = user_service.request_deletion(data, user)
+        deletion = inventory_service.request_deletion(data, user)
         return deletion, 201
     
     def get(self):
