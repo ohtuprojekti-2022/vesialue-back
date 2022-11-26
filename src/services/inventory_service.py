@@ -225,6 +225,7 @@ class InventoryService:
             raise Unauthorized(description='Admin only')
         try:
             Inventory.objects.raw({'_id': ObjectId(id)}).delete()
+            self.__delete_areas(id)
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
     
