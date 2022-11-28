@@ -102,7 +102,7 @@ class DeleteRequest(Resource):
     
     def get(self):
         is_admin = user_service.check_admin(request.headers)
-        return user_service.get_all_delete_requests(is_admin), 200
+        return inventory_service.get_all_delete_requests(is_admin), 200
 
 @api.route('/delete/<string:del_request_id>')
 class HandleDeleteRequest(Resource):
