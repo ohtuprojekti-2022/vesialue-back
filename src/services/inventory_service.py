@@ -260,7 +260,10 @@ class InventoryService:
             raise Unauthorized(description='Admin only')
         requests = []
         for item in DeleteRequest.objects.all():
-            requests.append(item.to_json())
+            try:
+                requests.append(item.to_json())
+            except:
+                item.delete()
         return requests
 
 
