@@ -41,7 +41,7 @@ class UserService:
 
     def login_user(self, username, password):
         # Username and password length validation
-        if len(username) > 32 or len(username) < 3 or len(password) < 10 or len(password) > 128:
+        if len(username) < 3 or len(password) < 10:
             raise BadRequest(description='Invalid username or password.')
 
         # Check if user exists in the database
