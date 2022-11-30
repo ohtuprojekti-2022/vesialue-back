@@ -64,7 +64,6 @@ class InventoryService:
 
         for item in EditedInventory.objects.all():
             itemjson = item.to_json()
-            print(itemjson, "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", data)
             if str(itemjson['originalReport']) == str(data['originalReport']):
                 item.delete()
 
