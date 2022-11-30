@@ -1,4 +1,4 @@
-from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField
+from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField, ListField
 from models.area import Area
 from models.user import User
 
@@ -19,6 +19,21 @@ class AreaReference(EmbeddedMongoModel):
             'area': str(self.area._id)
         }
 
+class AttachmentReference(EmbeddedMongoModel):
+    attachment = fields.ReferenceField('Attachment')
+
+    class Meta:
+        connection_alias = 'app'
+        final = True
+
+    @staticmethod
+    def create(attachment):
+        return AttachmentReference(attachment._id)
+
+    def to_json(self):
+        return {
+            'attachment': str(self.attachment._id)
+        }
 
 class Inventory(MongoModel):
     """ Class that represents a single inventory.
@@ -50,6 +65,7 @@ class Inventory(MongoModel):
     phone = fields.CharField(blank=True)
     more_info = fields.CharField(blank=True)
     user = ReferenceField(User, blank=True)
+    attachment_files = fields.EmbeddedDocumentListField(AttachmentReference, blank=True)
 
     class Meta:
         connection_alias = 'app'
@@ -59,7 +75,7 @@ class Inventory(MongoModel):
     def create(coordinates, inventorydate, method, visibility="", city="", method_info="",
                attachments=False, name="", email="", phone="", more_info="", user=None):
         inventory = Inventory([], inventorydate, method, visibility, city,
-                              method_info, attachments, name, email, phone, more_info, user)
+                              method_info, attachments, name, email, phone, more_info, user, [])
         inventory.save()
 
         areas, area_refs = Inventory.create_areas(inventory, coordinates)
@@ -84,6 +100,11 @@ class Inventory(MongoModel):
     @staticmethod
     def update_areas(inventory, new_area_refs):
         inventory.areas = new_area_refs
+        return inventory.save()
+
+    @staticmethod
+    def update_attachments(inventory, new_attachments):
+        inventory.attachments_files = new_attachments
         return inventory.save()
 
     def to_json(self, hide_personal_info: bool = False):
