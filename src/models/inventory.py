@@ -33,7 +33,8 @@ class AttachmentReference(EmbeddedMongoModel):
 
     def to_json(self):
         return {
-            'attachment': str(self.attachment._id)
+            'attachment': str(self.attachment._id),
+            'filename': str(self.filename)
         }
 
 class Inventory(MongoModel):
@@ -105,13 +106,17 @@ class Inventory(MongoModel):
 
     @staticmethod
     def update_attachments(inventory, new_attachments):
-        inventory.attachments_files = new_attachments
+        inventory.attachment_files = new_attachments
         return inventory.save()
 
     def to_json(self, hide_personal_info: bool = False):
         area_refs = []
         for area_ref in self.areas:
             area_refs.append(area_ref.to_json())
+
+        attach_refs = []
+        for attach_ref in self.attachment_files:
+            attach_refs.append(attach_ref.to_json())
 
         # Check if report is made by registered user. Empty email and phone fields if needed
         user_json = None
@@ -138,5 +143,6 @@ class Inventory(MongoModel):
             'name': str(self.name),
             'email': user_email,
             'phone': user_phone,
-            'moreInfo': str(self.more_info)
+            'moreInfo': str(self.more_info),
+            'attachment_files': attach_refs,
         }

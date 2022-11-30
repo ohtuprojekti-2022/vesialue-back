@@ -21,7 +21,7 @@ class UploadAttachment(Resource):
                 {'_id': ObjectId(request.form['inventory'])})
             refs = inventory.attachment_files
             refs.append(AttachmentReference.create(att))
-            inventory.attachments_files = refs
+            inventory.attachment_files = refs
             inventory.save()
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
