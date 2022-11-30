@@ -13,6 +13,8 @@ class Validation:
     def validate_password(self, password):
         if len(password) < 10:
             raise BadRequest(description='Password too short.')
+        if len(password) > 100:
+            raise BadRequest(description='Password too long.')
 
     def validate_username(self, username):
         if len(username) < 3:
@@ -43,6 +45,8 @@ class Validation:
     def validate_email(self, email):
         if re.fullmatch(EMAIL_REGEX, email) is None:
             raise BadRequest(description='Invalid email.')
+        if len(email) > 100:
+            raise BadRequest(description='Email too long.')
 
     def validate_phone(self, phone):
         if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':

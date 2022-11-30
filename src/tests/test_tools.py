@@ -97,3 +97,10 @@ def delete_all_edited_inventories():
         db.drop_collection('edited_inventory')
     except Exception as error:
         raise error
+
+def delete_all_delete_requests():
+    db = get_database()
+    try:
+        db.drop_collection('delete_request')
+    except Exception as error:
+        raise error

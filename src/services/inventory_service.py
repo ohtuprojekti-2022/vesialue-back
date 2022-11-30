@@ -6,6 +6,7 @@ from utils.config import BIG_DATA_API_KEY
 from models.inventory import Inventory
 from models.edited_inventory import EditedInventory
 from models.area import Area
+from models.delete_request import DeleteRequest
 from services.validation import validation
 
 
@@ -60,6 +61,11 @@ class InventoryService:
         user_id_edited = str(user._id)
         if user_id_edited != user_id_original:
             raise Unauthorized(description='Authorization error')
+
+        for item in EditedInventory.objects.all():
+            itemjson = item.to_json()
+            if str(itemjson['originalReport']) == str(data['originalReport']):
+                item.delete()
 
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                            method=data['method'], visibility=data['visibility'],
@@ -157,7 +163,7 @@ class InventoryService:
 
     def get_all_inventories(self, is_admin: bool = False):
         inventories = []
-        for item in Inventory.objects.all():
+        for item in Inventory.objects.all().order_by([('inventorydate', -1)]):
             inventories.append(item.to_json(hide_personal_info=not is_admin))
 
         return inventories
@@ -218,6 +224,56 @@ class InventoryService:
             EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
         except (EditedInventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
+
+    def delete_inventory(self, id, is_admin=False):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+        try:
+            Inventory.objects.raw({'_id': ObjectId(id)}).delete()
+            self.__delete_areas(id)
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+    def request_deletion(self, data, user):
+        inventory = self.get_inventory(data['inventory'], user)
+        if str(user._id) != inventory['user']['id']:
+            raise Unauthorized(description='Authorization error')
+
+        for item in DeleteRequest.objects.all():
+            itemjson = item.to_json()
+            if str(itemjson['inventory']) == str(data['inventory']):
+                item.delete()
+
+        delete_request = DeleteRequest.create(user, inventory['id'], data['reason'])
+        return delete_request.to_json()
+
+    def approve_deletion(self, request_id, is_admin):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+        try:
+            request = DeleteRequest.objects.get({'_id': ObjectId(request_id)})
+        except (DeleteRequest.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+        inventory_id =  request.to_json()['inventory']
+        self.delete_inventory(inventory_id, is_admin)
+        self.remove_delete_request(request_id, is_admin)
+    
+    def remove_delete_request(self, request_id, is_admin):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+        try:
+            DeleteRequest.objects.raw({'_id': ObjectId(request_id)}).delete()
+        except (DeleteRequest.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+    def get_all_delete_requests(self, is_admin):
+        if is_admin is False:
+            raise Unauthorized(description='Admin only')
+        requests = []
+        for item in DeleteRequest.objects.all():
+            requests.append(item.to_json())
+        return requests
+
 
     def inventory_json_to_object_format(self, json):
 
