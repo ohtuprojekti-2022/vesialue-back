@@ -266,15 +266,17 @@ class InventoryService:
         self.delete_inventory(inventory_id, is_admin)
         self.remove_delete_request(request_id, is_admin, None)
 
-    def remove_delete_request(self, request_id, is_admin, user_id):
+    def remove_delete_request(self, request_id, is_admin, user_id=None):
         try:
             delete_request = DeleteRequest.objects.raw({'_id': ObjectId(request_id)})
-            if (not (delete_request[0].user._id == user_id)) and (not is_admin):
-                raise Unauthorized(description='Admin only')
+            if not is_admin:
+                if not user_id or (user_id and not delete_request[0].user._id == user_id):
+                    raise Unauthorized(description='Admin only')
             delete_request.delete()
         except (DeleteRequest.DoesNotExist, InvalidId, Unauthorized) as error:
             if type(error) == Unauthorized:
-                raise NotFound(description='404 not found')
+                raise error
+            raise NotFound(description='404 not found') from error
 
     def get_all_delete_requests(self, is_admin):
         if is_admin is False:

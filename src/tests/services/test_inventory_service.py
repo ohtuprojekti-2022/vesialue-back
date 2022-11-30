@@ -489,7 +489,7 @@ class TestInventoryService(unittest.TestCase):
         
         result = self.ins.request_deletion(data, self.user)
         with pytest.raises(Unauthorized) as excinfo:
-            self.ins.remove_delete_request(result['id'], False, None)
+            self.ins.remove_delete_request(result['id'], False)
         self.assertEqual(str(excinfo.value),
                          '401 Unauthorized: Admin only')
         requests = self.ins.get_all_delete_requests(True)
