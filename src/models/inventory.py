@@ -21,6 +21,7 @@ class AreaReference(EmbeddedMongoModel):
 
 class AttachmentReference(EmbeddedMongoModel):
     attachment = fields.ReferenceField('Attachment')
+    filename = fields.CharField(blank=True)
 
     class Meta:
         connection_alias = 'app'
@@ -28,7 +29,7 @@ class AttachmentReference(EmbeddedMongoModel):
 
     @staticmethod
     def create(attachment):
-        return AttachmentReference(attachment._id)
+        return AttachmentReference(attachment._id, attachment.file.filename)
 
     def to_json(self):
         return {

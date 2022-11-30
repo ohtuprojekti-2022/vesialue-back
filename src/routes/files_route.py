@@ -27,7 +27,6 @@ class UploadAttachment(Resource):
             raise NotFound(description='404 not found') from error
 
 
-
 @api.route('/<string:attachment_id>')
 class GetAttachment(Resource):
     def get(self, attachment_id):
