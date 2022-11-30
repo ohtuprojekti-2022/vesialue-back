@@ -489,7 +489,7 @@ class TestInventoryService(unittest.TestCase):
         
         result = self.ins.request_deletion(data, self.user)
         with pytest.raises(Unauthorized) as excinfo:
-            self.ins.remove_delete_request(result['id'], False)
+            self.ins.remove_delete_request(result['id'], False, None)
         self.assertEqual(str(excinfo.value),
                          '401 Unauthorized: Admin only')
         requests = self.ins.get_all_delete_requests(True)
@@ -497,7 +497,7 @@ class TestInventoryService(unittest.TestCase):
     
     def test_removing_del_request_with_invalid_id_results_in_exception(self):
         with pytest.raises(NotFound) as excinfo:
-            self.ins.remove_delete_request('fde24d', True)
+            self.ins.remove_delete_request('fde24d', True, None)
         self.assertEqual(str(excinfo.value),
                          '404 Not Found: 404 not found')
     
@@ -508,7 +508,7 @@ class TestInventoryService(unittest.TestCase):
                 'reason': 'tein vahingossa kopion'}
         
         result = self.ins.request_deletion(data, self.user)
-        self.ins.remove_delete_request(result['id'], True)
+        self.ins.remove_delete_request(result['id'], True, None)
         
         requests = self.ins.get_all_delete_requests(True)
         self.assertEqual(0, len(requests))

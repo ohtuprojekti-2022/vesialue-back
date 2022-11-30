@@ -42,6 +42,12 @@ class EditRequest(Resource):
 
     def get(self):
         is_admin = user_service.check_admin(request.headers)
+        if not is_admin:
+            user = user_service.check_authorization(request.headers)
+            if user:
+                return inventory_service.get_edited_inventories_by_user_id(user._id)
+            else:
+                return {'error': 'bad request'}, 400
         return inventory_service.get_all_edited_inventories(is_admin), 200
 
 
@@ -64,7 +70,7 @@ class GetInventory(Resource):
         is_admin = user_service.check_admin(request.headers)
         inventory = inventory_service.get_inventory(report_id, is_admin)
         return inventory, 200
-    
+
     def delete(self, report_id):
         is_admin = user_service.check_admin(request.headers)
         inventory_service.delete_inventory(report_id, is_admin)
@@ -88,6 +94,7 @@ class GetAreas(Resource):
     def get(self):
         return inventory_service.get_areas(), 200
 
+
 @api.route('/delete')
 class DeleteRequest(Resource):
     def post(self):
@@ -99,16 +106,24 @@ class DeleteRequest(Resource):
         user = user_service.check_authorization(request.headers)
         deletion = inventory_service.request_deletion(data, user)
         return deletion, 201
-    
+
     def get(self):
         is_admin = user_service.check_admin(request.headers)
+        if not is_admin:
+            user = user_service.check_authorization(request.headers)
+            if user:
+                return inventory_service.get_delete_requests_by_user_id(user._id)
+            else:
+                return {'error': 'bad request'}, 400
         return inventory_service.get_all_delete_requests(is_admin), 200
+
 
 @api.route('/delete/<string:del_request_id>')
 class HandleDeleteRequest(Resource):
     def delete(self, del_request_id):
         is_admin = user_service.check_admin(request.headers)
-        inventory_service.remove_delete_request(del_request_id, is_admin)
+        user = user_service.check_authorization(request.headers)
+        inventory_service.remove_delete_request(del_request_id, is_admin, user._id)
         return 200
 
     def put(self, del_request_id):
