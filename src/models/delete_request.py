@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 class DeleteRequest(MongoModel):
     _id = fields.ObjectId()
     user = ReferenceField(User, blank=False)
-    inventory = ReferenceField(Inventory)
+    inventory = ReferenceField(Inventory, on_delete=ReferenceField.CASCADE)
     reason = fields.CharField(blank=False)
     
     class Meta:

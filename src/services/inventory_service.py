@@ -219,7 +219,7 @@ class InventoryService:
             EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
         except (EditedInventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
-    
+
     def delete_inventory(self, id, is_admin=False):
         if is_admin is False:
             raise Unauthorized(description='Admin only')
@@ -228,7 +228,7 @@ class InventoryService:
             self.__delete_areas(id)
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
-    
+
     def request_deletion(self, data, user):
         inventory = self.get_inventory(data['inventory'], user)
         if str(user._id) != inventory['user']['id']:
