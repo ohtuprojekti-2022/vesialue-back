@@ -62,6 +62,12 @@ class InventoryService:
         if user_id_edited != user_id_original:
             raise Unauthorized(description='Authorization error')
 
+        for item in EditedInventory.objects.all():
+            itemjson = item.to_json()
+            print(itemjson, "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ", data)
+            if str(itemjson['originalReport']) == str(data['originalReport']):
+                item.delete()
+
         inventory = EditedInventory.create(data['areas'], inventorydate=data['inventorydate'],
                                            method=data['method'], visibility=data['visibility'],
                                            city=city,
