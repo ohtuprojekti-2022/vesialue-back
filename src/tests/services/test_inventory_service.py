@@ -355,6 +355,22 @@ class TestInventoryService(unittest.TestCase):
             self.ins.get_edited_inventory(inv_id, True)
         self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
 
+    def test_deleting_own_edit_request_without_admin_status_should_succeed(self):
+        original_inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        edited_report = copy(TEST_REPORTS[2])
+        edited_report["areas"] = COORDINATES_EDITED
+        edited_report["editReason"] = "test reason"
+        edited_report["originalReport"] = original_inventory["id"]
+        edited_inventory = self.ins.add_edited_inventory(
+            edited_report, self.user)
+        inv_id = edited_inventory['id']
+        self.ins.delete_edit(inv_id, is_admin=False, user_id=self.user._id)
+
+        with pytest.raises(NotFound) as excinfo:
+            self.ins.get_edited_inventory(inv_id, True)
+        self.assertEqual(str(excinfo.value), '404 Not Found: 404 not found')
+
     def test_delete_edit_raises_exception_when_given_invalid_id(self):
         with pytest.raises(NotFound) as excinfo:
             self.ins.delete_edit('4328gh', True)
@@ -481,7 +497,7 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(str(excinfo.value),
                          '404 Not Found: 404 not found')
     
-    def test_removing_del_requests_as_non_admin_results_in_exception(self):
+    def test_removing_delete_requests_as_non_admin_results_in_exception(self):
         inventory = self.ins.add_inventory(
             TEST_REPORTS[2], self.user)[0]
         data = {'inventory': inventory['id'],
@@ -489,27 +505,41 @@ class TestInventoryService(unittest.TestCase):
         
         result = self.ins.request_deletion(data, self.user)
         with pytest.raises(Unauthorized) as excinfo:
-            self.ins.remove_delete_request(result['id'], False)
+            self.ins.remove_delete_request(result['id'], False, user_id='1b2h3647jd83kd9g')
         self.assertEqual(str(excinfo.value),
                          '401 Unauthorized: Admin only')
         requests = self.ins.get_all_delete_requests(True)
         self.assertEqual(1, len(requests))
     
-    def test_removing_del_request_with_invalid_id_results_in_exception(self):
+    def test_removing_delete_request_with_invalid_id_results_in_exception(self):
         with pytest.raises(NotFound) as excinfo:
             self.ins.remove_delete_request('fde24d', True, None)
         self.assertEqual(str(excinfo.value),
                          '404 Not Found: 404 not found')
     
-    def test_removing_del_request_with_valid_id_and_admin_status_succesful(self):
+    def test_removing_delete_request_with_valid_id_and_admin_status_succesful(self):
         inventory = self.ins.add_inventory(
             TEST_REPORTS[2], self.user)[0]
         data = {'inventory': inventory['id'],
                 'reason': 'tein vahingossa kopion'}
-        
+
         result = self.ins.request_deletion(data, self.user)
         self.ins.remove_delete_request(result['id'], True, None)
-        
+
+        requests = self.ins.get_all_delete_requests(True)
+        self.assertEqual(0, len(requests))
+        inventory = self.ins.get_inventory(result['inventory'])
+        self.assertIsNotNone(inventory)
+
+    def test_removing_own_delete_request_without_admin_status_should_succeed(self):
+        inventory = self.ins.add_inventory(
+            TEST_REPORTS[2], self.user)[0]
+        data = {'inventory': inventory['id'],
+                'reason': 'tein vahingossa kopion'}
+
+        result = self.ins.request_deletion(data, self.user)
+        self.ins.remove_delete_request(result['id'], False, self.user._id)
+
         requests = self.ins.get_all_delete_requests(True)
         self.assertEqual(0, len(requests))
         inventory = self.ins.get_inventory(result['inventory'])
@@ -526,7 +556,7 @@ class TestInventoryService(unittest.TestCase):
             TEST_REPORTS[2], self.user)[0]
         data = {'inventory': inventory['id'],
                 'reason': 'tein vahingossa kopion'}
-        
+
         self.ins.request_deletion(data, self.user)
         result = self.ins.get_all_delete_requests(True)
         self.assertEqual(1, len(result))
