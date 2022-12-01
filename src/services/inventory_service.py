@@ -177,6 +177,13 @@ class InventoryService:
 
         return inventories
 
+    def get_edited_inventories_by_user_id(self, user_id):
+        inventories = []
+        for item in EditedInventory.objects.raw({'user': {'$eq': ObjectId(user_id)}}):
+            inventories.append(item.to_json())
+
+        return inventories
+
     def approve_edit(self, edit_id, is_admin=False):
         if is_admin is False:
             raise Unauthorized(description='Admin only')
@@ -217,12 +224,17 @@ class InventoryService:
         except (Area.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
-    def delete_edit(self, edit_id, is_admin=False):
-        if is_admin is False:
-            raise Unauthorized(description='Admin only')
+    def delete_edit(self, edit_id, is_admin=False, user_id=None):
         try:
-            EditedInventory.objects.raw({'_id': ObjectId(edit_id)}).delete()
-        except (EditedInventory.DoesNotExist, InvalidId) as error:
+            edit_request = EditedInventory.objects.raw(
+                {'_id': ObjectId(edit_id)})
+            if not is_admin:
+                if user_id is None or not user_id == edit_request[0].user._id:
+                    raise Unauthorized(description='Admin only')
+            edit_request.delete()
+        except (EditedInventory.DoesNotExist, InvalidId, Unauthorized) as error:
+            if isinstance(error, Unauthorized):
+                raise error
             raise NotFound(description='404 not found') from error
 
     def delete_inventory(self, id, is_admin=False):
@@ -244,7 +256,8 @@ class InventoryService:
             if str(itemjson['inventory']) == str(data['inventory']):
                 item.delete()
 
-        delete_request = DeleteRequest.create(user, inventory['id'], data['reason'])
+        delete_request = DeleteRequest.create(
+            user, inventory['id'], data['reason'])
         return delete_request.to_json()
 
     def approve_deletion(self, request_id, is_admin):
@@ -254,26 +267,37 @@ class InventoryService:
             request = DeleteRequest.objects.get({'_id': ObjectId(request_id)})
         except (DeleteRequest.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
-        inventory_id =  request.to_json()['inventory']
+        inventory_id = request.to_json()['inventory']
         self.delete_inventory(inventory_id, is_admin)
-        self.remove_delete_request(request_id, is_admin)
-    
-    def remove_delete_request(self, request_id, is_admin):
-        if is_admin is False:
-            raise Unauthorized(description='Admin only')
+        self.remove_delete_request(request_id, is_admin, None)
+
+    def remove_delete_request(self, request_id, is_admin, user_id=None):
         try:
-            DeleteRequest.objects.raw({'_id': ObjectId(request_id)}).delete()
-        except (DeleteRequest.DoesNotExist, InvalidId) as error:
+            delete_request = DeleteRequest.objects.raw(
+                {'_id': ObjectId(request_id)})
+            if not is_admin:
+                if user_id is None or (not delete_request[0].user._id == user_id):
+                    raise Unauthorized(description='Admin only')
+            delete_request.delete()
+        except (DeleteRequest.DoesNotExist, InvalidId, Unauthorized) as error:
+            if isinstance(error, Unauthorized):
+                raise error
             raise NotFound(description='404 not found') from error
 
     def get_all_delete_requests(self, is_admin):
         if is_admin is False:
             raise Unauthorized(description='Admin only')
-        requests = []
+        delete_requests = []
         for item in DeleteRequest.objects.all():
-            requests.append(item.to_json())
-        return requests
+            delete_requests.append(item.to_json())
+        return delete_requests
 
+    def get_delete_requests_by_user_id(self, user_id):
+        inventories = []
+        for item in DeleteRequest.objects.raw({'user': {'$eq': ObjectId(user_id)}}):
+            inventories.append(item.to_json())
+
+        return inventories
 
     def inventory_json_to_object_format(self, json):
 
