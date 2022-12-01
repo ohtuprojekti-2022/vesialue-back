@@ -60,7 +60,8 @@ class GetEdited(Resource):
 
     def delete(self, report_id):
         is_admin = user_service.check_admin(request.headers)
-        inventory_service.delete_edit(report_id, is_admin)
+        user = user_service.check_authorization(request.headers)
+        inventory_service.delete_edit(report_id, is_admin, user._id)
         return 200
 
 
