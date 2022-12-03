@@ -126,7 +126,7 @@ class UserService:
             return False
         return True
 
-    def get_token(self, headers: dict) -> dict:
+    def get_token(self, headers: dict):
         if 'Authorization' in headers:
             token = str.replace(str(headers['Authorization']), 'Bearer ', '')
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
