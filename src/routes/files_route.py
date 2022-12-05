@@ -11,10 +11,7 @@ api = Namespace('files')
 @api.route('/upload')
 class UploadAttachment(Resource):
     def post(self):
-        files = request.files.getlist("file")
-        print("files:", files)
-        for file in files:
-            print("file:", file.filename)
+        for file in request.files.getlist("file"):
             file.name = file.filename
             att = Attachment(file=file)
             att.save()
