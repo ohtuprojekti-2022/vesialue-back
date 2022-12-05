@@ -9,6 +9,8 @@ from models.area import Area
 from models.delete_request import DeleteRequest
 from services.validation import validation
 
+# Disable pylint's no-member check since it causes unnecessary warnings when used with pymodm
+# pylint: disable=no-member
 
 class InventoryService:
     """ Class responsible for inventory logic."""
@@ -312,3 +314,4 @@ class InventoryService:
 
 
 inventory_service = InventoryService()
+# pylint: enable=no-member

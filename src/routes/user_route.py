@@ -12,7 +12,7 @@ class SetAdmin(Resource):
             return {'error': 'bad request'}, 400
         data = request.get_json()
         if user_service.check_admin(request.headers):
-        	return user_service.set_admin(data['username'], data['admin_value']), 200
+            return user_service.set_admin(data['username'], data['admin_value']), 200
         return {'error': 'bad request'}, 400
 
 @api.route('/edit')
