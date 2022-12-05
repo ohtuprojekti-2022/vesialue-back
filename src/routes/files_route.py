@@ -11,19 +11,30 @@ api = Namespace('files')
 @api.route('/upload')
 class UploadAttachment(Resource):
     def post(self):
+        # Get the inventory, return 404 if not found
+        try:
+            inventory = Inventory.objects.get(
+                {'_id': ObjectId(request.form['inventory'])})
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='invalid inventory') from error
+
+        # Get attachments from the form
+        attachments = []
         for file in request.files.getlist("file"):
             file.name = file.filename
-            att = Attachment(file=file)
-            att.save()
-            try:
-                inventory = Inventory.objects.get(
-                    {'_id': ObjectId(request.form['inventory'])})
-                refs = inventory.attachment_files
-                refs.append(AttachmentReference.create(att))
-                inventory.attachment_files = refs
-                inventory.save()
-            except (Inventory.DoesNotExist, InvalidId) as error:
-                raise NotFound(description='404 not found') from error
+            attachment = Attachment(file=file)
+            attachment.save()
+            attachments.append(attachment)
+
+        # Append references of the files to the inventory
+        references = inventory.attachment_files
+        for attachment in attachments:
+            references.append(AttachmentReference.create(attachment))
+        inventory.attachment_files = references
+        inventory.save()
+
+        # Return attachment files as json
+        return [reference.to_json() for reference in references]
 
 @api.route('/<string:attachment_id>')
 class GetAttachment(Resource):
