@@ -64,7 +64,7 @@ class Validation:
                 raise BadRequest(description='No method info given.')
 
     def validate_more_info(self, more_info):
-        if len(more_info) > 500:
+        if len(more_info) > 5000:
             raise BadRequest(description='Info too long.')
 
     def validate_edit_reason(self, edit_reason):
