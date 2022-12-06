@@ -32,12 +32,36 @@ class TestUserService(unittest.TestCase):
                             "email": "testiposti@gmail.com",
                             "phone": "0458384950"})
 
+    def test_create_user_password_too_long(self):
+        with pytest.raises(BadRequest):
+            us.create_user({"username": "testipitkäsana",
+                            "password": """pitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkä""",
+                            "name": "Lyhytsana Testaaja",
+                            "email": "testiposti@gmail.com",
+                            "phone": "0458384950"})
+
     def test_create_user_email_not_valid(self):
         with pytest.raises(BadRequest):
             us.create_user({"username": "spostitesti",
                             "password": "salainensana",
                             "name": "Posti Testaaja",
                             "email": "huonosposti",
+                            "phone": "+358504332221"})
+
+    def test_create_user_email_too_long(self):
+        with pytest.raises(BadRequest):
+            us.create_user({"username": "spostitesti",
+                            "password": "salainensana",
+                            "name": "Posti Testaaja",
+                            "email": """pitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkäpitkäpitkäpitkäpitkäpitkä
+                            pitkä@gmail.com""",
                             "phone": "+358504332221"})
 
     def test_create_user_username_too_short(self):

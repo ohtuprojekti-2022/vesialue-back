@@ -76,7 +76,7 @@ class EditedInventory(MongoModel):
     attachments = fields.BooleanField(required=True, default=False)
     more_info = fields.CharField(blank=True)
     user = ReferenceField(User, blank= True)
-    original_report = ReferenceField(Inventory)
+    original_report = ReferenceField(Inventory, on_delete=ReferenceField.CASCADE)
 
     class Meta:
         connection_alias = 'app'
