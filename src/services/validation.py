@@ -68,7 +68,7 @@ class Validation:
             raise BadRequest(description='Info too long.')
 
     def validate_visibility(self, visibility):
-        if visibility not in ['bad', 'normal', 'good']:
+        if visibility not in ['', 'bad', 'normal', 'good']:
             raise BadRequest(description='Invalid visibility.')
 
     def validate_edit_reason(self, edit_reason):
