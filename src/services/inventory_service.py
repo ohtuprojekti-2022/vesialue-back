@@ -23,7 +23,9 @@ class InventoryService:
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
         validation.validate_inventorydate_date(data['inventorydate'])
+        validation.validate_name(data['name'])
         validation.validate_method(data['method'])
+        validation.validate_visibility(data['visibility'])
         validation.validate_method_info(data['method'], data['methodInfo'])
         validation.validate_more_info(data['moreInfo'])
         if user is None:

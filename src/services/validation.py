@@ -53,7 +53,7 @@ class Validation:
             raise BadRequest(description='Invalid phone number.')
 
     def validate_name(self, name):
-        if len(name) > 100:
+        if len(name) > 60:
             raise BadRequest(description='Invalid name.')
 
     def validate_method_info(self, method, method_info):
@@ -66,6 +66,10 @@ class Validation:
     def validate_more_info(self, more_info):
         if len(more_info) > 5000:
             raise BadRequest(description='Info too long.')
+
+    def validate_visibility(self, visibility):
+        if visibility not in ['', 'bad', 'normal', 'good']:
+            raise BadRequest(description='Invalid visibility.')
 
     def validate_edit_reason(self, edit_reason):
         if len(edit_reason) < 1:
