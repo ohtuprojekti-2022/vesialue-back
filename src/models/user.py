@@ -25,7 +25,7 @@ class User(MongoModel):
         self.save()
 
     def is_admin(self) -> bool:
-        return True if self.admin == 1 else False
+        return self.admin == 1
 
     def to_json(self, hide_personal_info: bool = False):
         user_email = "" if hide_personal_info else str(self.email)
