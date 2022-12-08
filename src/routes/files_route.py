@@ -1,10 +1,13 @@
+import os
 from flask import request, send_file
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from flask_restx import Namespace, Resource
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 from models.attachment import Attachment
 from models.inventory import Inventory, AttachmentReference
+from models.user import User
+from services.user_service import user_service
 
 api = Namespace('files')
 
@@ -22,7 +25,7 @@ class UploadAttachment(Resource):
         attachments = []
         for file in request.files.getlist("file"):
             file.name = file.filename
-            attachment = Attachment(file=file)
+            attachment = Attachment(file=file, inventory=inventory)
             attachment.save()
             attachments.append(attachment)
 
@@ -39,10 +42,53 @@ class UploadAttachment(Resource):
 @api.route('/<string:attachment_id>')
 class GetAttachment(Resource):
     def get(self, attachment_id):
-        # get file from mongodb
+        # Get file from mongodb
         try:
             attachment = Attachment.objects.get(
                 {'_id': ObjectId(attachment_id)})
             return send_file(attachment.file, attachment_filename=attachment.file.filename, as_attachment=True)
         except (Attachment.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
+
+    @staticmethod
+    def delete_attachment(attachment_id, inventory_id):
+        try:
+            Attachment.objects.raw({'_id': ObjectId(attachment_id)}).delete()
+        except (Attachment.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+    def delete(self, attachment_id):
+        # Get the attachment object from mongo
+        try:
+            attachment = Attachment.objects.get(
+                {'_id': ObjectId(attachment_id)}
+            )
+        except (Attachment.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+        print(attachment)
+
+        # Get the inventory associated with the attachment
+        try:
+            inventory = Inventory.objects.get(
+                {'_id': ObjectId(attachment.inventory._id)}
+            )
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+        print(inventory)
+
+        # Get user from the token
+        user = user_service.check_authorization(request.headers)
+        if not user:
+            return {'error': 'bad request'}, 400
+        
+        # Check if user matches the inventory's user
+        print("token id:", str(user._id))
+        print("inv id:", str(inventory.user._id))
+        if str(user._id) == str(inventory.user._id):
+            # Delete the attachment_id
+            try:
+                Attachment.objects.raw({'_id': ObjectId(attachment_id)}).delete()
+            except (Attachment.DoesNotExist, InvalidId) as error:
+                raise NotFound(description='404 not found') from error
+        else:
+            print("match")
