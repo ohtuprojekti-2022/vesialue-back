@@ -82,13 +82,25 @@ class GetAttachment(Resource):
             return {'error': 'bad request'}, 400
         
         # Check if user matches the inventory's user
-        print("token id:", str(user._id))
-        print("inv id:", str(inventory.user._id))
         if str(user._id) == str(inventory.user._id):
-            # Delete the attachment_id
+            # Delete the attachment, included file data and reference from the report
             try:
+                references = inventory.attachment_files
+                # Delete reference from the inventory
+                for ref in references:
+                    if str(ref.attachment._id) == str(attachment_id):
+                        references.remove(ref)
+                inventory.attachment_files = references
+                inventory.save()
+
+                # Delete file data
+                attachment.file.delete()
+
+                # Delete attachment object
                 Attachment.objects.raw({'_id': ObjectId(attachment_id)}).delete()
             except (Attachment.DoesNotExist, InvalidId) as error:
                 raise NotFound(description='404 not found') from error
         else:
-            print("match")
+            return {'error': 'bad request'}, 400
+
+        return {'deleted': attachment_id}, 204
