@@ -32,6 +32,8 @@ class InventoryService:
             validation.validate_email(data['email'])
             validation.validate_phone(data['phone'])
         else:
+            validation.validate_email_loggedin(data['email'])
+            validation.validate_phone_loggedin(data['phone'])
             validation.validate_email(user.email)
             validation.validate_phone(user.phone)
 
