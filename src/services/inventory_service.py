@@ -387,7 +387,7 @@ class InventoryService:
         else:
             return {'error': 'bad request'}, 400
 
-        return {'deleted': attachment_id}, 204
+        return {'deleted': attachment_id}, 200
 
 inventory_service = InventoryService()
 # pylint: enable=no-member
