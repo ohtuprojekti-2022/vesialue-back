@@ -38,7 +38,6 @@ class GetAttachment(Resource):
             raise NotFound(description='404 not found') from error
 
     def delete(self, attachment_id):
-
         # Get user from the token
         user = user_service.check_authorization(request.headers)
         if not user:

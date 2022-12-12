@@ -248,6 +248,10 @@ class InventoryService:
         if is_admin is False:
             raise Unauthorized(description='Admin only')
         try:
+            attachments = Attachment.objects.raw({'inventory': ObjectId(id)})
+            for attachment in attachments:
+                attachment.file.delete()
+            attachments.delete()
             Inventory.objects.raw({'_id': ObjectId(id)}).delete()
             self.__delete_areas(id)
         except (Inventory.DoesNotExist, InvalidId) as error:
