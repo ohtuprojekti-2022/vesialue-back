@@ -50,7 +50,10 @@ class Validation:
 
     def validate_email_loggedin(self, email):
         if len(email) > 0:
-            raise BadRequest(description='Invalid email.')
+            if re.fullmatch(EMAIL_REGEX, email) is None:
+                raise BadRequest(description='Invalid email.')
+            if len(email) > 100:
+                raise BadRequest(description='Email too long.')
 
     def validate_phone(self, phone):
         if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
@@ -58,7 +61,8 @@ class Validation:
 
     def validate_phone_loggedin(self, phone):
         if len(phone) > 0:
-            raise BadRequest(description='Invalid phone number.')
+            if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
+                raise BadRequest(description='Invalid phone number.')
 
     def validate_name(self, name):
         if len(name) > 60:
