@@ -73,15 +73,14 @@ class GetAttachment(Resource):
             )
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
-        print(inventory)
 
         # Get user from the token
         user = user_service.check_authorization(request.headers)
         if not user:
             return {'error': 'bad request'}, 400
         
-        # Check if user matches the inventory's user
-        if str(user._id) == str(inventory.user._id):
+        # Check if user matches the inventory's user OR user is admin
+        if user_service.check_admin(request.headers) or str(user._id) == str(inventory.user._id):
             # Delete the attachment, included file data and reference from the report
             try:
                 references = inventory.attachment_files
