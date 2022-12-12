@@ -1,4 +1,4 @@
-from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField, ListField
+from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField
 from models.area import Area
 from models.user import User
 
@@ -52,6 +52,7 @@ class Inventory(MongoModel):
             email: [String] The email of the submitter.
             phone: [String] The phonenumber of the submitter.
             more_info: [String] Other notes for the inventory.
+            attachment_files: [AttachmentReference] List of references to the attachment files
     """
 
     _id = fields.ObjectId()
@@ -110,14 +111,6 @@ class Inventory(MongoModel):
         return inventory.save()
 
     def to_json(self, hide_personal_info: bool = False):
-        area_refs = []
-        for area_ref in self.areas:
-            area_refs.append(area_ref.to_json())
-
-        attach_refs = []
-        for attach_ref in self.attachment_files:
-            attach_refs.append(attach_ref.to_json())
-
         # Check if report is made by registered user. Empty email and phone fields if needed
         user_json = None
         if self.user:
@@ -132,7 +125,7 @@ class Inventory(MongoModel):
 
         return {
             'id': str(self._id),
-            'areas': area_refs,
+            'areas': [area_ref.to_json() for area_ref in self.areas],
             'user': user_json,
             'inventorydate': str(self.inventorydate)[:-9],
             'method': str(self.method),
@@ -144,5 +137,5 @@ class Inventory(MongoModel):
             'email': user_email,
             'phone': user_phone,
             'moreInfo': str(self.more_info),
-            'attachment_files': attach_refs,
+            'attachment_files': [attach_ref.to_json() for attach_ref in self.attachment_files],
         }

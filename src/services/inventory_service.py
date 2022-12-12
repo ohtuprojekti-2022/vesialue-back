@@ -9,6 +9,8 @@ from models.area import Area
 from models.delete_request import DeleteRequest
 from services.validation import validation
 
+# Disable pylint's no-member check since it causes unnecessary warnings when used with pymodm
+# pylint: disable=no-member
 
 class InventoryService:
     """ Class responsible for inventory logic."""
@@ -21,13 +23,17 @@ class InventoryService:
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
         validation.validate_inventorydate_date(data['inventorydate'])
+        validation.validate_name(data['name'])
         validation.validate_method(data['method'])
+        validation.validate_visibility(data['visibility'])
         validation.validate_method_info(data['method'], data['methodInfo'])
         validation.validate_more_info(data['moreInfo'])
         if user is None:
             validation.validate_email(data['email'])
             validation.validate_phone(data['phone'])
         else:
+            validation.validate_email_loggedin(data['email'])
+            validation.validate_phone_loggedin(data['phone'])
             validation.validate_email(user.email)
             validation.validate_phone(user.phone)
 
@@ -312,3 +318,4 @@ class InventoryService:
 
 
 inventory_service = InventoryService()
+# pylint: enable=no-member

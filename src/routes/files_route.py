@@ -9,6 +9,9 @@ from models.inventory import Inventory, AttachmentReference
 from models.user import User
 from services.user_service import user_service
 
+# Disable pylint's no-member check since it causes unnecessary warnings when used with pymodm
+# pylint: disable=no-member
+
 api = Namespace('files')
 
 @api.route('/upload')
@@ -46,14 +49,10 @@ class GetAttachment(Resource):
         try:
             attachment = Attachment.objects.get(
                 {'_id': ObjectId(attachment_id)})
-            return send_file(attachment.file, attachment_filename=attachment.file.filename, as_attachment=True)
-        except (Attachment.DoesNotExist, InvalidId) as error:
-            raise NotFound(description='404 not found') from error
-
-    @staticmethod
-    def delete_attachment(attachment_id, inventory_id):
-        try:
-            Attachment.objects.raw({'_id': ObjectId(attachment_id)}).delete()
+            return send_file(
+                attachment.file,
+                attachment_filename=attachment.file.filename,
+                as_attachment=True)
         except (Attachment.DoesNotExist, InvalidId) as error:
             raise NotFound(description='404 not found') from error
 
@@ -104,3 +103,4 @@ class GetAttachment(Resource):
             return {'error': 'bad request'}, 400
 
         return {'deleted': attachment_id}, 204
+# pylint: enable=no-member
