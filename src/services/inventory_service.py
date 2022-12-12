@@ -3,7 +3,8 @@ from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
 from utils.config import BIG_DATA_API_KEY
-from models.inventory import Inventory
+from models.inventory import Inventory, AttachmentReference
+from models.attachment import Attachment
 from models.edited_inventory import EditedInventory
 from models.area import Area
 from models.delete_request import DeleteRequest
@@ -316,6 +317,73 @@ class InventoryService:
             'more_info': json['moreInfo']
         }
 
+    def add_attachment(self, inventory_id, attachment_files):
+        # Get the inventory, return 404 if not found
+        try:
+            inventory = Inventory.objects.get(
+                {'_id': ObjectId(inventory_id)})
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='invalid inventory') from error
+
+        # Get attachments from the form
+        attachments = []
+        for file in attachment_files:
+            file.name = file.filename
+            attachment = Attachment(file=file, inventory=inventory)
+            attachment.save()
+            attachments.append(attachment)
+
+        # Append references of the files to the inventory
+        references = inventory.attachment_files
+        for attachment in attachments:
+            references.append(AttachmentReference.create(attachment))
+        inventory.attachment_files = references
+        inventory.save()
+
+        # Return attachment files as json
+        return [reference.to_json() for reference in references]
+
+    def delete_attachment(self, attachment_id, user, is_admin):
+        # Get the attachment object from mongo
+        try:
+            attachment = Attachment.objects.get(
+                {'_id': ObjectId(attachment_id)}
+            )
+        except (Attachment.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+        # Get the inventory associated with the attachment
+        try:
+            inventory = Inventory.objects.get(
+                {'_id': ObjectId(attachment.inventory._id)}
+            )
+        except (Inventory.DoesNotExist, InvalidId) as error:
+            raise NotFound(description='404 not found') from error
+
+
+        # Check if user matches the inventory's user OR user is admin
+        if is_admin or str(user._id) == str(inventory.user._id):
+            # Delete the attachment, included file data and reference from the report
+            try:
+                references = inventory.attachment_files
+                # Delete reference from the inventory
+                for ref in references:
+                    if str(ref.attachment._id) == str(attachment_id):
+                        references.remove(ref)
+                inventory.attachment_files = references
+                inventory.save()
+
+                # Delete file data
+                attachment.file.delete()
+
+                # Delete attachment object
+                Attachment.objects.raw({'_id': ObjectId(attachment_id)}).delete()
+            except (Attachment.DoesNotExist, InvalidId) as error:
+                raise NotFound(description='404 not found') from error
+        else:
+            return {'error': 'bad request'}, 400
+
+        return {'deleted': attachment_id}, 204
 
 inventory_service = InventoryService()
 # pylint: enable=no-member
