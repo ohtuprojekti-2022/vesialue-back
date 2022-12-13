@@ -329,6 +329,13 @@ class InventoryService:
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='invalid inventory') from error
 
+        # Get current attachment files
+        references = inventory.attachment_files
+
+        # Check that max. 5 attachment files are allowed
+        if (len(references) + len(attachment_files)) > 5:
+            return {'too many attachments', 400}
+
         # Get attachments from the form
         attachments = []
         for file in attachment_files:
@@ -337,8 +344,7 @@ class InventoryService:
             attachment.save()
             attachments.append(attachment)
 
-        # Append references of the files to the inventory
-        references = inventory.attachment_files
+        # Append references of the new attachment files to the inventory
         for attachment in attachments:
             references.append(AttachmentReference.create(attachment))
         inventory.attachment_files = references
