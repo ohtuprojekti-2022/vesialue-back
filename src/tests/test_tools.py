@@ -104,3 +104,12 @@ def delete_all_delete_requests():
         db.drop_collection('delete_request')
     except Exception as error:
         raise error
+
+def delete_all_attachments():
+    db = get_database()
+    try:
+        db.drop_collection('attachment')
+        db.drop_collection('fs.files')
+        db.drop_collection('fs.chunks')
+    except Exception as error:
+        raise error
