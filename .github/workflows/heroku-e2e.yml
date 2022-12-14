@@ -1,8 +1,7 @@
 name: E2E back build
 
 on:
-  push:
-    branches: ['e2e-actions']
+  workflow_dispatch
 
 jobs:
   build:
