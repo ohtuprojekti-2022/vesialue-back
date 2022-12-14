@@ -348,6 +348,11 @@ class InventoryService:
         for attachment in attachments:
             references.append(AttachmentReference.create(attachment))
         inventory.attachment_files = references
+
+        # Set attachments boolean to true if it's not yet set
+        if not inventory.attachments:
+            inventory.attachments = True
+
         inventory.save()
 
         # Return attachment files as json
@@ -381,6 +386,11 @@ class InventoryService:
                     if str(ref.attachment._id) == str(attachment_id):
                         references.remove(ref)
                 inventory.attachment_files = references
+
+                # Set attachments boolean to false if no remaining references
+                if not references or len(references) == 0:
+                    inventory.attachments = False
+
                 inventory.save()
 
                 # Delete file data
