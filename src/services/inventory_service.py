@@ -321,13 +321,17 @@ class InventoryService:
             'more_info': json['moreInfo']
         }
 
-    def add_attachment(self, inventory_id, attachment_files):
+    def add_attachment(self, inventory_id, attachment_files, user):
         # Get the inventory, return 404 if not found
         try:
             inventory = Inventory.objects.get(
                 {'_id': ObjectId(inventory_id)})
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='invalid inventory') from error
+
+        # Check if user owns the inventory
+        if str(user._id) != str(inventory.user._id):
+            return {'invalid user', 400}
 
         # Get current attachment files
         references = inventory.attachment_files
