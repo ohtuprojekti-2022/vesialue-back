@@ -15,9 +15,14 @@ api = Namespace('files')
 @api.route('/upload')
 class UploadAttachment(Resource):
     def post(self):
+        user = user_service.check_authorization(request.headers)
+        if not user:
+            return {'error': 'bad request'}, 400
+
         return inventory_service.add_attachment(
             inventory_id=request.form['inventory'],
-            attachment_files=request.files.getlist("file")
+            attachment_files=request.files.getlist("file"),
+            user=user
         )
 
 @api.route('/<string:attachment_id>')
