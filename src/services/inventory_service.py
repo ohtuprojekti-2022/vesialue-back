@@ -343,13 +343,24 @@ class InventoryService:
             'more_info': json['moreInfo']
         }
 
-    def add_attachment(self, inventory_id, attachment_files):
+    def add_attachment(self, inventory_id, attachment_files, user):
         # Get the inventory, return 404 if not found
         try:
             inventory = Inventory.objects.get(
                 {'_id': ObjectId(inventory_id)})
         except (Inventory.DoesNotExist, InvalidId) as error:
             raise NotFound(description='invalid inventory') from error
+
+        # Check if user owns the inventory
+        if str(user._id) != str(inventory.user._id):
+            return {'invalid user', 400}
+
+        # Get current attachment files
+        references = inventory.attachment_files
+
+        # Check that max. 5 attachment files are allowed
+        if (len(references) + len(attachment_files)) > 5:
+            return {'too many attachments', 400}
 
         # Get attachments from the form
         attachments = []
@@ -359,11 +370,15 @@ class InventoryService:
             attachment.save()
             attachments.append(attachment)
 
-        # Append references of the files to the inventory
-        references = inventory.attachment_files
+        # Append references of the new attachment files to the inventory
         for attachment in attachments:
             references.append(AttachmentReference.create(attachment))
         inventory.attachment_files = references
+
+        # Set attachments boolean to true if it's not yet set
+        if not inventory.attachments:
+            inventory.attachments = True
+
         inventory.save()
 
         # Return attachment files as json
@@ -397,6 +412,11 @@ class InventoryService:
                     if str(ref.attachment._id) == str(attachment_id):
                         references.remove(ref)
                 inventory.attachment_files = references
+
+                # Set attachments boolean to false if no remaining references
+                if not references or len(references) == 0:
+                    inventory.attachments = False
+
                 inventory.save()
 
                 # Delete file data

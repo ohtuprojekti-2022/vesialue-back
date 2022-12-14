@@ -1,12 +1,9 @@
-import os
 from flask import request, send_file
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from flask_restx import Namespace, Resource
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound
 from models.attachment import Attachment
-from models.inventory import Inventory, AttachmentReference
-from models.user import User
 from services.user_service import user_service
 from services.inventory_service import inventory_service
 
@@ -18,9 +15,14 @@ api = Namespace('files')
 @api.route('/upload')
 class UploadAttachment(Resource):
     def post(self):
+        user = user_service.check_authorization(request.headers)
+        if not user:
+            return {'error': 'bad request'}, 400
+
         return inventory_service.add_attachment(
             inventory_id=request.form['inventory'],
-            attachment_files=request.files.getlist("file")
+            attachment_files=request.files.getlist("file"),
+            user=user
         )
 
 @api.route('/<string:attachment_id>')
