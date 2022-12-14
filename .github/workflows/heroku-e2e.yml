@@ -1,11 +1,11 @@
 name: E2E back build
 
 on:
-  workflow_dispatch
+  push:
+    branches: ['e2e-actions']
 
 jobs:
   build:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
