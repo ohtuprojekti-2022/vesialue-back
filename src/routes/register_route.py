@@ -6,6 +6,18 @@ api = Namespace('register')
 
 @api.route('')
 class Register(Resource):
+    """Register route.
+    post:
+        summary: Endpoint for registering a new user.
+        description: Creates new user based on data received
+            from frontend.
+        responses:
+            200:
+                description: Creates new user and logs the new user in.
+                    Returns authentication token and user schema as dict.
+            400:
+                description: Bad request.
+    """
     def post(self):
         content_type = request.headers.get('Content-Type')
         if content_type != 'application/json':

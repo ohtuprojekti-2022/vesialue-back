@@ -6,6 +6,18 @@ api = Namespace('login')
 
 @api.route('')
 class Login(Resource):
+    """Log in route.
+    post:
+        summary: Endpoint for logging a user in.
+        description: Generates an authentication token. Returns token and
+            user schema.
+        responses:
+            200:
+                description: Returns authentication token
+                    and user schema as dict.
+            400:
+                description: Bad request.
+    """
     def post(self):
         content_type = request.headers.get('Content-Type')
         if content_type != 'application/json':

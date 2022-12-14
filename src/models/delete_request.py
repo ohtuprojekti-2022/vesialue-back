@@ -4,6 +4,13 @@ from models.inventory import Inventory
 from models.user import User
 
 class DeleteRequest(MongoModel):
+    """Class that represents a delete request.
+    Attributes:
+        user: [USER] The user that submitted the delete request.
+        inventory: [INVENTORY] The inventory that is requested to be deleted.
+        reason: [String] Reason for deletion.
+
+    """
     _id = fields.ObjectId()
     user = ReferenceField(User, blank=False)
     inventory = ReferenceField(Inventory, on_delete=ReferenceField.CASCADE)
