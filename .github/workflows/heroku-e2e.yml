@@ -2,7 +2,7 @@ name: E2E back build
 
 on:
   push:
-    branches: ['e2e-actions']
+    branches: ['staging']
 
 jobs:
   build:
