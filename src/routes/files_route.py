@@ -14,6 +14,17 @@ api = Namespace('files')
 
 @api.route('/upload')
 class UploadAttachment(Resource):
+    """Route for uploading files.
+    post:
+        summary: Endpoint for uploading files.
+        description: Creates new attachment file and returns
+        attachment schema.
+        responses:
+            200:
+                description: File successfully uploaded.
+            400:
+                description: Bad request.
+    """
     def post(self):
         user = user_service.check_authorization(request.headers)
         if not user:
@@ -27,6 +38,38 @@ class UploadAttachment(Resource):
 
 @api.route('/<string:attachment_id>')
 class GetAttachment(Resource):
+    """Route for individual attachments.
+    get:
+        summary: Get endpoint for individual attachments.
+        description: Sends file to client.
+        parameters:
+            - name: attachment_id
+                in: path
+                description: ID of the attachment.
+                type: string
+                required: true
+        responses:
+            200:
+                description: File was successfully sent.
+            404:
+                description: File was not found.
+    delete:
+        summary: Delete endpoint for individual attachments.
+        description: Deletes the given file from the database.
+        parameters:
+            - name: attachment_id
+                in: path
+                description: ID of the attachment.
+                type: string
+                required: true
+        responses:
+            200:
+                description: File successfully deleted from database.
+            400:
+                description: Bad request.
+            404:
+                description: File not found.
+    """
     def get(self, attachment_id):
         # Get file from mongodb
         try:
