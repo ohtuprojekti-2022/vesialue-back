@@ -20,6 +20,16 @@ class InventoryService:
         """ Class constructor. Creates a new inventory service."""
 
     def add_inventory(self, data, user, is_admin: bool = False):
+        """Validates input data and adds a new inventory document to the database.
+
+        Args:
+            data (dict): Data containing inventory information.
+            user (dict): User data.
+            is_admin (bool, optional): True if user is admin. Defaults to False.
+
+        Returns:
+            list: List containing the created inventory and its areas as dictionaries.
+        """
         self.validate_missing_parameters(data, False)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_format(data['inventorydate'])
@@ -54,6 +64,18 @@ class InventoryService:
         return [inventory, areas]
 
     def add_edited_inventory(self, data, user):
+        """Validates input data and creates a new edited inventory.
+
+        Args:
+            data (dict): Data for the new edited inventory.
+            user (dict): User data.
+
+        Raises:
+            Unauthorized: If the user IDs on the original and edited inventory differ.
+
+        Returns:
+            dict: the newly created edited inventory object
+        """
         self.validate_missing_parameters(data, True)
         validation.validate_coordinates(data['areas'])
         validation.validate_inventorydate_date(data['inventorydate'])
