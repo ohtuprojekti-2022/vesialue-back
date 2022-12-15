@@ -1,7 +1,7 @@
 from pymodm import EmbeddedMongoModel, MongoModel, fields, ReferenceField
+from bson.objectid import ObjectId
 from models.inventory import Inventory
 from models.user import User
-from bson.objectid import ObjectId
 
 class Point(EmbeddedMongoModel):
     lat = fields.FloatField(required=True)

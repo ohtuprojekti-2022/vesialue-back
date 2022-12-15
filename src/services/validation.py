@@ -48,12 +48,24 @@ class Validation:
         if len(email) > 100:
             raise BadRequest(description='Email too long.')
 
+    def validate_email_loggedin(self, email):
+        if len(email) > 0:
+            if re.fullmatch(EMAIL_REGEX, email) is None:
+                raise BadRequest(description='Invalid email.')
+            if len(email) > 100:
+                raise BadRequest(description='Email too long.')
+
     def validate_phone(self, phone):
         if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
             raise BadRequest(description='Invalid phone number.')
 
+    def validate_phone_loggedin(self, phone):
+        if len(phone) > 0:
+            if re.fullmatch(PHONE_REGEX, phone) is None and phone != '':
+                raise BadRequest(description='Invalid phone number.')
+
     def validate_name(self, name):
-        if len(name) > 100:
+        if len(name) > 60:
             raise BadRequest(description='Invalid name.')
 
     def validate_method_info(self, method, method_info):
@@ -64,8 +76,12 @@ class Validation:
                 raise BadRequest(description='No method info given.')
 
     def validate_more_info(self, more_info):
-        if len(more_info) > 500:
+        if len(more_info) > 5000:
             raise BadRequest(description='Info too long.')
+
+    def validate_visibility(self, visibility):
+        if visibility not in ['', 'bad', 'normal', 'good']:
+            raise BadRequest(description='Invalid visibility.')
 
     def validate_edit_reason(self, edit_reason):
         if len(edit_reason) < 1:
