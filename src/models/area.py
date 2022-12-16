@@ -2,6 +2,11 @@ from pymodm import EmbeddedMongoModel, MongoModel, fields
 
 
 class Point(EmbeddedMongoModel):
+    """Class that represents a point on a map.
+    Attributes:
+        lat: [Float] Latitude coordinate.
+        long: [Float] Longitude coordinate.
+    """
     lat = fields.FloatField(required=True)
     long = fields.FloatField(required=True)
 
@@ -21,6 +26,11 @@ class Point(EmbeddedMongoModel):
 
 
 class Area(MongoModel):
+    """Class that represents an area.
+    Attributes:
+        inventory: [INVENTORY] The inventory that the area belongs to.
+        coordinates: [POINT] List of coordinates as points.
+    """
     _id = fields.ObjectId()
     inventory = fields.ReferenceField('Inventory')
     coordinates = fields.EmbeddedDocumentListField(Point)

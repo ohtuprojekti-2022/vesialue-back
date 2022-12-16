@@ -143,10 +143,10 @@ class TestInventoryService(unittest.TestCase):
         self.assertEqual(str(excinfo.value),
                          '400 Bad Request: No method info given.')
 
-    def test_add_inventory_invalid_more_info(self):
+    def test_add_inventory_with_too_long_description(self):
         with pytest.raises(BadRequest) as excinfo:
             invalid_report = deepcopy(TEST_REPORTS[0])
-            invalid_report['moreInfo'] = 'asdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfgasdfg'
+            invalid_report['moreInfo'] = 'a' * 5001
             self.ins.add_inventory(invalid_report, None)
         self.assertEqual(str(excinfo.value), '400 Bad Request: Info too long.')
 

@@ -11,6 +11,8 @@ class Tests(Resource):
             tools.delete_all_users()
             tools.delete_all_inventories()
             tools.delete_all_edited_inventories()
+            tools.delete_all_delete_requests()
+            tools.delete_all_attachments()
         except Exception as e:
             return {f'{type(e)}': e.args}, 400
         return 'Reset succeed', 200
